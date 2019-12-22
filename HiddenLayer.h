@@ -3,6 +3,7 @@
 #include <vector>
 #include <functional>
 #include "Layer.h"
+#include "Utilities.h"
 
 /* A hidden layer has 
 - a weighting matrix, and the associated derivative matrix. numOutputs X numInputs dimension.
@@ -29,7 +30,7 @@ private:
 	The dimension is n_k X 1, or numOutputs X 1.
 	Calculated from Model. Cached here. */
 	Eigen::VectorXd currSample_chainRuleFactor; 
-	/*For the k-th hidden layer, this stores do_k/do_(k-1).*/
+	/*For the k-th hidden layer, this stores do_k/do_(k-1). Of dimension p_k X n_k.*/
 	Eigen::MatrixXd currSample_dodinput;
 
 	/*There are supposed to be n_k(numOutputs) elements in the vector.
@@ -68,16 +69,34 @@ private:
 	The default actiavtion for a new hidden layer is the Bent Identity. See utilities.h.*/
 	std::function<double(double)> activate_scalar;
 
-	/*Maps the input to the output. Defined for convinient calculation of numerical diff.*/
-	Eigen::VectorXd calcOutputFromInput(Eigen::VectorXd);
 
-	/*/
 
-	/*Maps the bias to the output. Use for convinient calculation of numerical diff.*/
-	Eigen::VectorXd calcOutputFromBias(Eigen::VectorXd);
 
+
+	/*Returns the output based on current configuration.*/
+	Eigen::VectorXd returnOutput();
 public:
-	HiddenLayer(int numberInputs, int numberOutputs);
+	/*Calculates the do_k/dw_kj. The implementation performs nuermical differentiation
+in the context, i.e., doesn't invoke the numericDiff in utitlies.h. This
+breaks the abstraction barrier between Layer and Numeric Methods. Hope to improve on
+this in future iterations. */
+	Eigen::MatrixXd calcDoDweightJ(int j, double perturbance = 0.000001);
+
+	/*Calculates do_k/do_(k-1). The implementation performs nuermical differentiation
+	in the context, i.e., doesn't invoke the numericDiff in utitlies.h. This
+	breaks the abstraction barrier between Layer and Numeric Methods. Hope to improve on
+	this in future iterations.*/
+	Eigen::MatrixXd calcDoDinput(double perturbance = 0.000001);
+
+	/*Calculates do_k/db_k. The implementation performs nuermical differentiation
+	in the context, i.e., doesn't invoke the numericDiff in utitlies.h. This
+	breaks the abstraction barrier between Layer and Numeric Methods. Hope to improve on
+	this in future iterations.*/
+	Eigen::MatrixXd calcDoDbiasJ(int j, double perturbance = 0.000001);
+
+	/*By default all weights and biases are initialized to one. 
+	The activation function is Bent identity by default.*/ 
+	HiddenLayer(int numberInputs, int numberOutputs, double activate(double) = bentIdentity);
 
 	void calcOutput() override;
 
@@ -102,6 +121,7 @@ public:
 	Eigen::MatrixXd getCurrSample_dodinput();
 	void setCurrSample_dodinput(Eigen::MatrixXd);
 
+
 	/*Add all dodweights to the private vector currSample_dodweights. 
 	Once again currSample_dodweights should have n_k elements, representing
 	the derivative of output against the weights of n_k neurons, and 
@@ -124,9 +144,7 @@ public:
 
 	Eigen::VectorXd getNeblaWeights();
 
-
 	Eigen::VectorXd getNeblaBias();
-
 
 	/*Lets the user pass in a self-defined activation function.*/
 	void setActivation(double func(double));

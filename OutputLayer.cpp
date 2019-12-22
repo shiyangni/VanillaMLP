@@ -12,15 +12,22 @@ OutputLayer::OutputLayer(int numberInputs)
 
 void OutputLayer::calcOutput()
 {
-	VectorXd result = calcOutputFromInput(getInput());
+	RowVectorXd ones = RowVectorXd::Ones(getNumInputs());
+	VectorXd result = ones * getInput();
 	setOutput(result);
 }
 
-Eigen::VectorXd OutputLayer::calcOutputFromInput(VectorXd input)
+Eigen::MatrixXd OutputLayer::calcDoDinput(double perturbance)
 {
-	int numRows = input.rows();
-	VectorXd ones(numRows);
-	ones.fill(1);
-	VectorXd result = ones.transpose() * input;
+	MatrixXd result(getNumInputs(), getNumOutputs());
+	RowVectorXd ones = RowVectorXd::Ones(getNumInputs());
+	for (int i = 0; i < getNumInputs(); i++) {
+		VectorXd perturbedInput = getInput();
+		perturbedInput(i) += perturbance;
+		VectorXd perturbedOutput = ones * perturbedInput;
+		result(i, 0) = (perturbedOutput(0) - getOutput()(0)) / perturbance;
+	}
 	return result;
 }
+
+

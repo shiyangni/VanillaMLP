@@ -11,6 +11,7 @@
 #include "Layer.h"
 #include "InputLayer.h"
 #include "OutputLayer.h"
+#include "HiddenLayer.h"
 #include "Model.h"
 
 using namespace std;
@@ -49,22 +50,11 @@ VectorXd testMap3(VectorXd input) {
 int main() {
 	cout << "Welcome to testing for Vanilla MLP!" << endl;
 
-	///*Getting familiar with matrix initialization and arithmetics.*/
-	//MatrixXd m(5, 2);
-	//m.fill(0);
-	//cout << "First matrix is: \n" << m << endl;
 
-	//VectorXd c(5);
-	//c.fill(1);
-	//cout << "First columns vector is: \n" << c << endl;
-
-	//RowVectorXd r(10);
-	//r.fill(3);
-	//cout << "First row vector is: \n" << r << endl;
 
 
     /*Testing reading CSV in.*/
-	cout << "Testing the utility function that reads csv into a vector of string vectors." << endl;
+	cout << "Begin testing readCSV." << endl;
 	vector<vector<string>> temp = csvToVecOfVecString("data.csv");
     
 	cout << "The element at Row 2 Column 4 is 11947. Did we get it right?" << endl; // 0 indexing
@@ -72,13 +62,15 @@ int main() {
 
 	cout << "The element at Row 4 Column 0 is 550000. Did we get it right?" << endl;
 	cout << "That element in the read in result is: " << temp.at(4).at(0) << endl;
-	cout << "We got both of them right! \n \n \n" << endl;
+	cout << "We got both of them right! \n \n " << endl;
 
 
 	/*Testing reading data in.*/
 	cout << "Let's see if the readCSV function works!" << endl;
 	cout << readCSV("data_fake.csv") << endl;
 	cout << "Read CSV function works as intended. \n\n" << endl;
+	cout << "This concludes testing readCSV \n\n" << endl;
+
 
 	/*Testing how the Eigen::Matrix works. */
 	/*Assignment of a subset deep copies? Yes.*/
@@ -96,31 +88,32 @@ int main() {
 	/*Testing for Model.h*/
 	Model emptyModel;
 	MatrixXd data_train = readCSV("data.csv");
+	VectorXd sample_x = emptyModel.getXTrain().row(0).transpose();
 
-	//cout << "Begin testing Model" << endl;
-	///*Test the default constructor of Model.*/
-	//cout << "Testing the default constructor Model." << endl;
+	cout << "Begin testing Model" << endl;
+	/*Test the default constructor of Model.*/
+	cout << "Testing the default constructor Model." << endl;
 
-	//cout << "data in the empty model is: \n" << emptyModel.getDataTrain() << endl;
-	//cout << "The X_train is: \n " << emptyModel.getXTrain() << endl;
-	//cout << "The y_train is: \n " << emptyModel.getYTrain() << endl;
-	//cout << "This is exactly the data in data_fake.csv! \n\n" << endl;
+	cout << "data in the empty model is: \n" << emptyModel.getDataTrain() << endl;
+	cout << "The X_train is: \n " << emptyModel.getXTrain() << endl;
+	cout << "The y_train is: \n " << emptyModel.getYTrain() << endl;
+	cout << "This is exactly the data in data_fake.csv! \n\n" << endl;
 
-	///*Testing the initiation of a model with an inputLayer.*/
-	//cout << "Testing the initiation of a model with an inputLayer." << endl;
+	/*Testing the initiation of a model with an inputLayer.*/
+	cout << "Testing the initiation of a model with an inputLayer." << endl;
 
- //	Model dataModel(data_train);
-	//cout << "Our data has " << data_train.cols() - 1 << " features." << endl;
-	//cout << "After adding the input layer, the input layer has " << dataModel.getLayer(0).getNumInputs()
-	//	<< " inputs" << endl;
-	//cout << "Model initiation works fine! \n\n" << endl;
+ 	Model dataModel(data_train);
+	cout << "Our data has " << data_train.cols() - 1 << " features." << endl;
+	cout << "After adding the input layer, the input layer has " << dataModel.getLayer(0).getNumInputs()
+		<< " inputs" << endl;
+	cout << "Model initiation works fine! \n\n" << endl;
 
-	/*Testing for Layer.h and subclasses.*/
-	cout << "Testing for Layer and its subclasses" << endl;
+	/*Testing for Layer.*/
+	cout << "Begin testing for Layer and its subclasses" << endl;
 	/*Layer*/
 	/*Test if readInput(...) works properly.*/
 	cout << "Test if readInput(...) works properly at a general layer." << endl;
-	VectorXd sample_x = emptyModel.getXTrain().row(0).transpose();
+	
 	Layer generalLayer(sample_x.rows(), 5); // numInputs should match the inputting vector's dimension.
 											// numOutputs is randomly assigned.
 	generalLayer.readInput(sample_x);
@@ -143,18 +136,85 @@ int main() {
 
 	/*OutputLayer*/
 	/*Testing calcOutput for Output Layer.*/
-	cout << "Testing calcOutput for Output Layer." << endl;
+	cout << "Begin testing output layer." << endl;
 	OutputLayer outputLayer1(sample_x.rows());
 	outputLayer1.readInput(sample_x);
 	outputLayer1.calcOutput();
+	cout << "The input into the output layer is: \n" << sample_x << endl;
 	cout << "The output layer should add all inputs and return it as a 1x1 matrix. \n"
 		"Our output layer outputs: " << outputLayer1.getOutput() << endl;
+	cout << "The output layer's do/dinput should be a vector of ones. Per our calculation"
+		" it is: \n" << outputLayer1.calcDoDinput() << endl;
 	cout << "This concludes testing for output layer \n\n" << endl;
 	
+	/*HiddenLayer.*/
+	cout << "Begin testing for hidden layer." << endl;
+	cout << "The hidden layer is initiated on the sample: \n" << sample_x << endl;
+	HiddenLayer hiddenLayer1(sample_x.rows(), 5, identity);
+	hiddenLayer1.readInput(sample_x);
+	cout << "The hidden layer's weights should be a 5 X 3 matrix, by default all initialized"
+		"to 1. Our layer's weights are: \n" << hiddenLayer1.getWeights() << endl;
+	cout << "The bias should be a 5 X 1 matrix all equal to 1. Our layer's biases are \n"
+	     << hiddenLayer1.getBias() << endl;
 	
+	hiddenLayer1.calcOutput();
+	cout << "The output vector is supposed to be a 5 X 1 vector, each item is sum of inputs + 1."
+		"Our layer's output vector is: \n" << hiddenLayer1.getOutput() << "\n\n" << endl;
+
+	/*Test numerical differentiation within each layer.*/
+	cout << "Test numerical differentiation within the layer."<< endl;
+	HiddenLayer hiddenLayer3(sample_x.rows(), 3, identity);
+	MatrixXd weights_hl3(3, 3);
+	weights_hl3 << 1, 2, 3, 10, 20, 30, 100, 200, 300;
+	hiddenLayer3.setWeights(weights_hl3);
+	cout << "We construct the layer to take in three inputs, produce three outpus, actiavte through"
+		" identity, and set the weights to the following: \n" << hiddenLayer3.getWeights() << endl;
+	cout << "The bias remains 1: \n" << hiddenLayer3.getBias() << endl;
+	hiddenLayer3.readInput(sample_x);
+	hiddenLayer3.calcOutput();
+	cout << "On the input: \n" << sample_x << endl;
+	cout << "The outputs are: \n" << hiddenLayer3.getOutput() << endl;
+	/*do/dweightJ*/
+	cout << "do/dweight0 should be a 3 X 3 matrix, with the first column equaling the input,"
+		" and the rest 0. Our layer calculates the jacobian to be: \n" << hiddenLayer3.calcDoDweightJ(0)
+		<< endl;
+	cout << "\n\n do/dweight1 should also be 3X3, with the second column equaling input,"
+		"And the rest equaling 0. The layer calculates the Jacobian to be :\n"
+		<< hiddenLayer3.calcDoDweightJ(1) << endl;
+	cout << "\n\n do/dweight2 should also be 3X3, with the third column equaling input,"
+		"And the rest equaling 0. The layer calculates the Jacobian to be :\n"
+		<< hiddenLayer3.calcDoDweightJ(2) << endl;
+	cout << "Errors appear. The current perturbance used in numerical diff is 1 X 10^(-7)"
+		"Underflow starts to kick in after 1 X 10^(-8). We stick with 1 X 10^(-7)" << endl;
+	/*do/dbiasJ*/
+	cout << "\n do/dbias0 should be a row vector (1, 0, 0). It's calcualated to be: \n" 
+		<< hiddenLayer3.calcDoDbiasJ(0) << endl;
+	cout << "\n do/dbias1 should be a row vector (0, 1, 0). It's calcualated to be: \n" 
+		<< hiddenLayer3.calcDoDbiasJ(1) << endl;
+	cout << "\n do/dbias2 should be a row vector (0, 0, 1). It's calcualated to be: \n"
+		<< hiddenLayer3.calcDoDbiasJ(2) << endl;
+	/*do/dinput*/
+	cout << "\n do_k/do_(k-1), or do_k/dinput should be the transposed weights matrix."
+		" It actually is \n: " << hiddenLayer3.calcDoDinput() << "\n and our weights matrix"
+		" is \n" << hiddenLayer3.getWeights() << endl;
+
+	/*Layer with Bent identity*/
+	cout << "\n \nTest a hiddenLayer with bentIdentity activation." << endl;
+	HiddenLayer hiddenLayer2(sample_x.rows(), 2);
+	hiddenLayer2.readInput(sample_x);
+	hiddenLayer2.calcOutput();
+	cout << "The outputs are activated through a bent identity. The result should be 2017.75" << endl;
+	cout << "The layer's output is: \n" << hiddenLayer2.getOutput() << endl;
+	cout << "do/dweight0 is: \n" << hiddenLayer2.calcDoDweightJ(0) << endl;
+	cout << "do/dbias0 is: \n" << hiddenLayer2.calcDoDbiasJ(0) << endl;
+	cout << "do/dinput is: \n" << hiddenLayer2.calcDoDinput() << endl;
+	cout << "We've checked that the values don't explode." << endl;
+	
+	cout << "This concludes testing for a stand-alone HiddenLayer. \n\n" << endl;
+
 	
 	/*Testing utitlities.*/
-	cout << "Testing the utilities funcitons. Note they don't belong to any classes." << endl;
+	//cout << "Testing the utilities funcitons. Note they don't belong to any classes." << endl;
 	/*Testing numericDiff.*/
 	/*cout << "Testing nuermic differentiation." << endl;
 	VectorXd testVec = VectorXd::Ones(3);
@@ -178,6 +238,6 @@ int main() {
 		"1/8 1/4  1/2    1   \n" << endl;
 	cout << "It actually is \n" << numericDiff(testVec3, testMap3) << endl;*/
 		
-	cout << "This concludes testing for utility functions. \n\n" << endl;
+	//cout << "This concludes testing for utility functions. \n\n" << endl;
 	return 0;
 }

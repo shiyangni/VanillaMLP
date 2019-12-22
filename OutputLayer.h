@@ -8,9 +8,9 @@ class OutputLayer :
 public:
 	OutputLayer(int numberInputs);
 	void calcOutput() override;
+	/*Calculates and returns do/dinput. The dimension is numInputs X 1.*/
+	Eigen::MatrixXd calcDoDinput(double perturbance=0.000001);
 private:
-	/*This function takes in the input vector and returns its dot product with 1 vector. 
-	Defined for nuermical differnetiation.*/
-	Eigen::VectorXd calcOutputFromInput(Eigen::VectorXd input);
+
 };
 

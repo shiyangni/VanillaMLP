@@ -6,35 +6,82 @@
 using namespace std;
 using namespace Eigen;
 
-HiddenLayer::HiddenLayer(int numberInputs, int numberOutputs)
+
+
+Eigen::VectorXd HiddenLayer::returnOutput()
+{
+	VectorXd result = activate_vector(getWeights() * getInput() + getBias());
+	return result;
+}
+
+HiddenLayer::HiddenLayer(int numberInputs, int numberOutputs, double activate(double))
 {
 	Layer(numberInputs, numberOutputs);
 	setNumInputs(numberInputs);
 	setNumOutputs(numberOutputs);
-	/*By default all weights and biases are initialized to one.*/
 	setWeights(MatrixXd::Ones(getNumOutputs(), getNumInputs()));
 	setBias(VectorXd::Ones(getNumOutputs()));
-	setActivation(bentIdentity);
+	setActivation(activate);
 }
 
 
-Eigen::VectorXd HiddenLayer::calcOutputFromInput(Eigen::VectorXd input)
+
+Eigen::MatrixXd HiddenLayer::calcDoDweightJ(int j, double perturbance)
 {
-	VectorXd result = activate_vector(getWeights() * input + getBias());
+	MatrixXd weights = getWeights();
+	VectorXd bias = getBias();
+	VectorXd input = getInput();
+	VectorXd originalOutput = activate_vector(weights * input + bias);
+	VectorXd weightJ = getJthWeight(j);
+	MatrixXd result(weightJ.rows(), originalOutput.rows());
+	for (int i = 0; i < originalOutput.rows(); i++) {
+		for (int k = 0; k < weightJ.rows(); k++) {
+			MatrixXd perturbedWeights = weights;
+			perturbedWeights(j, k) += perturbance;
+			VectorXd perturbedOutput = activate_vector(perturbedWeights * input + bias);
+			result(k, i) = (perturbedOutput(i) - originalOutput(i)) / perturbance;
+		}
+	}
+	return result;
+}
+
+Eigen::MatrixXd HiddenLayer::calcDoDbiasJ(int j, double perturbance)
+{
+	VectorXd bias = getBias();
+	VectorXd originalOutput = returnOutput();
+	MatrixXd result(1, originalOutput.rows());
+	for (int k = 0; k < originalOutput.rows(); k++) {
+		VectorXd perturbedBias = bias;
+		perturbedBias(j) += perturbance;
+		VectorXd perturbedOutput = activate_vector(getWeights() * getInput() + perturbedBias);
+		result(0, k) = (perturbedOutput(k) - originalOutput(k)) / perturbance;
+	}
+	return result;
+}
+
+
+Eigen::MatrixXd HiddenLayer::calcDoDinput(double perturbance)
+{
+	VectorXd input = getInput();
+	VectorXd originalOutput = returnOutput();
+	MatrixXd result(input.rows(), originalOutput.rows());
+	for (int i = 0; i < input.rows(); i++) {
+		for (int j = 0; j < originalOutput.rows(); j++) {
+			VectorXd perturbedInput = input;
+			perturbedInput(i) += perturbance;
+			VectorXd perturbedOutput = activate_vector(getWeights() * perturbedInput + getBias());
+			result(i, j) = (perturbedOutput(j) - originalOutput(j)) / perturbance;
+		}
+	}
 	return result;
 }
 
 
 
-Eigen::VectorXd HiddenLayer::calcOutputFromBias(Eigen::VectorXd bias)
-{
-	VectorXd result = activate_vector(getWeights() * getInput() + bias);
-	return Eigen::VectorXd();
-}
-
-
 void HiddenLayer::calcOutput()
 {
+	VectorXd output = returnOutput();
+	setOutput(output);
 }
 
 Eigen::VectorXd HiddenLayer::activate_vector(Eigen::VectorXd input)
@@ -64,7 +111,7 @@ Eigen::VectorXd HiddenLayer::getJthWeight(int j)
 
 Eigen::VectorXd HiddenLayer::getBias()
 {
-	return Eigen::VectorXd();
+	return bias;
 }
 
 void HiddenLayer::setBias(Eigen::VectorXd newBias)
@@ -74,24 +121,28 @@ void HiddenLayer::setBias(Eigen::VectorXd newBias)
 
 Eigen::VectorXd HiddenLayer::getCurrSample_ChainRuleFactor()
 {
-	return Eigen::VectorXd();
+	return currSample_chainRuleFactor;
 }
 
-void HiddenLayer::setCurrSample_ChainRuleFactor(Eigen::VectorXd)
+void HiddenLayer::setCurrSample_ChainRuleFactor(Eigen::VectorXd newCRfactor)
 {
+	currSample_chainRuleFactor = newCRfactor;
 }
 
 Eigen::MatrixXd HiddenLayer::getCurrSample_dodinput()
 {
-	return Eigen::MatrixXd();
+	return currSample_dodinput;
 }
 
-void HiddenLayer::setCurrSample_dodinput(Eigen::MatrixXd)
+void HiddenLayer::setCurrSample_dodinput(Eigen::MatrixXd newValue)
 {
+	currSample_dodinput = newValue;
 }
+
 
 void HiddenLayer::addCurrSample_dodweights()
 {
+	
 }
 
 std::vector<Eigen::MatrixXd> HiddenLayer::getCurrSample_dodweights()
