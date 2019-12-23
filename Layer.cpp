@@ -8,7 +8,7 @@ Layer::Layer(int numberInputs, int numberOutputs)
 {
 	numInputs = numberInputs;
 	numOutputs = numberOutputs;
-
+	layerIndex = -1;
  
 }
 
@@ -17,7 +17,7 @@ Layer::Layer()
 {
 	numInputs = 0;
 	numOutputs = 0;
-
+	layerIndex = -1;
 }
 
 void Layer::readInput(Eigen::VectorXd input)
@@ -30,6 +30,16 @@ void Layer::readInput(Eigen::VectorXd input)
 void Layer::calcOutput()
 {
 	cout << "A General Layer is too abstract for calcOutput method to be implemented!" << endl;
+}
+
+void Layer::setLayerIndex(int i)
+{
+	layerIndex = i;
+}
+
+int Layer::getLayerIndex()
+{
+	return layerIndex;
 }
 
 

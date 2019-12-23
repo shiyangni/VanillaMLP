@@ -13,6 +13,7 @@ class InputLayer :
 	public Layer
 {
 public:
+	InputLayer();
 	InputLayer(int numberInputs);
 	void calcOutput() override;
 

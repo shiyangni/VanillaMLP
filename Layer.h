@@ -49,7 +49,8 @@ public:
 	Eigen::VectorXd getOutput() { return outputVector; }
 	void setOutput(Eigen::VectorXd output) { outputVector = output; }
 	
-
+	void setLayerIndex(int i);
+	int getLayerIndex();
 
 
 
@@ -58,6 +59,11 @@ private:
 	int numOutputs;
 	Eigen::VectorXd inputVector;
 	Eigen::VectorXd outputVector;
+	/*The kth Layer in the model. -1 if the Layer exists by itself. 
+	When a layer is added into a model, the layerIndex is set using its setter function.
+	An input layer always the 0th layer.
+	An hidden and output layer has the layerIndex layers.size() before the layer is added.*/
+	int layerIndex;
 
 };
 

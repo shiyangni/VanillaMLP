@@ -14,7 +14,12 @@ Eigen::VectorXd HiddenLayer::returnOutput()
 	return result;
 }
 
-HiddenLayer::HiddenLayer(int numberInputs, int numberOutputs, double activate(double))
+HiddenLayer::HiddenLayer()
+{
+	Layer(0, 0);
+}
+
+HiddenLayer::HiddenLayer(int numberInputs, int numberOutputs, std::function<double(double)> activate)
 {
 	Layer(numberInputs, numberOutputs);
 	setNumInputs(numberInputs);
@@ -73,6 +78,7 @@ Eigen::MatrixXd HiddenLayer::calcDoDinput(double perturbance)
 			result(i, j) = (perturbedOutput(j) - originalOutput(j)) / perturbance;
 		}
 	}
+	currSample_DoDinput = result;
 	return result;
 }
 
@@ -129,39 +135,51 @@ void HiddenLayer::setCurrSample_ChainRuleFactor(Eigen::VectorXd newCRfactor)
 	currSample_chainRuleFactor = newCRfactor;
 }
 
-Eigen::MatrixXd HiddenLayer::getCurrSample_dodinput()
+Eigen::MatrixXd HiddenLayer::getCurrSample_DoDinput()
 {
-	return currSample_dodinput;
-}
-
-void HiddenLayer::setCurrSample_dodinput(Eigen::MatrixXd newValue)
-{
-	currSample_dodinput = newValue;
+	return currSample_DoDinput;
 }
 
 
-void HiddenLayer::addCurrSample_dodweights()
+
+void HiddenLayer::calcCurrSample_DoDweights()
 {
-	
+	int numOutputs = getNumOutputs();
+	for (int j = 0; j < numOutputs; j++) {
+		MatrixXd DoDweightJ = calcDoDweightJ(j);
+		currSample_DoDweights.push_back(DoDweightJ);
+	}
 }
 
-std::vector<Eigen::MatrixXd> HiddenLayer::getCurrSample_dodweights()
+std::vector<Eigen::MatrixXd>& HiddenLayer::getCurrSample_DoDweights()
 {
-	return std::vector<Eigen::MatrixXd>();
+	return currSample_DoDweights;
 }
 
-void HiddenLayer::addCurrSample_dodbias()
+void HiddenLayer::calcCurrSample_DoDbias()
 {
+	int numOutputs = getNumOutputs();
+	for (int j = 0; j < numOutputs; j++) {
+		MatrixXd DoDbiasJ = calcDoDbiasJ(j);
+		currSample_DoDbias.push_back(DoDbiasJ);
+	}
 }
 
-std::vector<Eigen::MatrixXd> HiddenLayer::getCurrSample_dodbias()
+std::vector<Eigen::MatrixXd>& HiddenLayer::getCurrSample_DoDbias()
 {
-	return std::vector<Eigen::MatrixXd>();
+	return currSample_DoDbias;
+}
+
+void HiddenLayer::calcJacobians()
+{
+	calcDoDinput();
+	calcCurrSample_DoDbias();
+	calcCurrSample_DoDweights();
 }
 
 Eigen::VectorXd HiddenLayer::getNeblaWeights()
 {
-	return Eigen::VectorXd();
+	return neblaWeights;
 }
 
 
@@ -173,7 +191,7 @@ Eigen::VectorXd HiddenLayer::getNeblaBias()
 
 
 
-void HiddenLayer::setActivation(double func(double))
+void HiddenLayer::setActivation(std::function<double(double)> func)
 {
 	activate_scalar = func;
 }

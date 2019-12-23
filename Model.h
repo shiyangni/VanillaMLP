@@ -9,6 +9,9 @@
 #include <string>  
 
 #include "Layer.h"
+#include "HiddenLayer.h"
+#include "InputLayer.h"
+#include "OutputLayer.h"
 #include "Utilities.h"
 
 
@@ -30,15 +33,18 @@ private:
 	Eigen::MatrixXd X_train;
 	Eigen::VectorXd y_train;
 	Eigen::MatrixXd data_train;
-	std::vector<Layer> layers;
+	InputLayer inputLayer;
+	std::vector<HiddenLayer> hiddenLayers;
+	OutputLayer outputLayer;
 	double lambda;
+	int numOfLayers;
 
 
 	/*Does 1 iteration of gradient descent on X and y. Utilizes forwardProp,
 	loss, and backProp.*/
 	void gd_oneIteration(Eigen::MatrixXd X, Eigen::VectorXd y, double lambda);
 
-	/*This is to be used upon the initialization of model.*/
+	/*This is used upon the initialization of model.*/
 	void addInputLayer();
 public:
 	/*The constructor reads in the data and stores them in X_train and y_train. 
@@ -52,12 +58,14 @@ public:
 	/*Add a hidden layer with specified number of outputs. The added layer's input
 	is retrieved from the last layer, and the output of that layer is computed and 
 	stored.*/
-	void addHiddenLayer(int numOutputs);
-
+	void addHiddenLayer(int numOutputs, std::function<double(double)> activate=bentIdentity);
 
 	/*Add an output layer. Upon adding, the layer's input is retrieved retrieved 
 	from the last layer, and is computed and stored.*/
 	void addOutputLayer();
+	
+	/*Computes y_hat on one given sample. */
+	double forwardProp_oneSample(Eigen::VectorXd x);
 
 	/*Computes y_hat on a given X. X has to have the same number of columns as
 	X_train. The returned y_hat has to have the same number of rows as X. */
@@ -75,11 +83,20 @@ public:
 
 	Layer& getLayer(int i);
 
+	InputLayer& getInputLayer();
+
+	HiddenLayer& getKthHiddenLayer(int k);
+
+	OutputLayer& getOutputLayer();
+
 	Eigen::MatrixXd& getDataTrain();
 
 	Eigen::MatrixXd& getXTrain();
 
 	Eigen::VectorXd& getYTrain();
+
+	int getNumOfLayers();
+
 
 };
  

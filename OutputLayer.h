@@ -6,6 +6,7 @@ class OutputLayer :
 	public Layer
 {
 public:
+	OutputLayer();
 	OutputLayer(int numberInputs);
 	void calcOutput() override;
 	/*Calculates and returns do/dinput. The dimension is numInputs X 1.*/

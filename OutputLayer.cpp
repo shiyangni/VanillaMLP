@@ -3,6 +3,11 @@
 
 using namespace Eigen;
 
+OutputLayer::OutputLayer()
+{
+	Layer(0, 0);
+}
+
 OutputLayer::OutputLayer(int numberInputs)
 {
 	Layer(numberInputs, numberInputs);

@@ -3,6 +3,11 @@
 
 using namespace std;
 
+InputLayer::InputLayer()
+{
+	Layer(0, 0);
+}
+
 InputLayer::InputLayer(int numberInputs)
 {
 	Layer(numberInputs, numberInputs);
