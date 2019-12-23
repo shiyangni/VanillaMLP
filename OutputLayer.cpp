@@ -32,7 +32,13 @@ Eigen::MatrixXd OutputLayer::calcDoDinput(double perturbance)
 		VectorXd perturbedOutput = ones * perturbedInput;
 		result(i, 0) = (perturbedOutput(0) - getOutput()(0)) / perturbance;
 	}
+	currSample_DoDinput = result;
 	return result;
+}
+
+Eigen::MatrixXd& OutputLayer::getCurrSample_DoDinput()
+{
+	return currSample_DoDinput;
 }
 
 

@@ -11,7 +11,9 @@ public:
 	void calcOutput() override;
 	/*Calculates and returns do/dinput. The dimension is numInputs X 1.*/
 	Eigen::MatrixXd calcDoDinput(double perturbance=0.000001);
-private:
 
+	Eigen::MatrixXd& getCurrSample_DoDinput();
+private:
+	Eigen::MatrixXd currSample_DoDinput;
 };
 

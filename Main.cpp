@@ -48,12 +48,12 @@ VectorXd testMap3(VectorXd input) {
 }
 
 int main() {
-	cout << "Welcome to testing for Vanilla MLP!" << endl;
+	cout << "Welcome to testing for Vanilla MLP! \n\n" << endl;
 
 
 
 
-    /*Testing reading CSV in.*/
+ //   /*Testing reading CSV in.*/
 	//cout << "Begin testing readCSV." << endl;
 	//vector<vector<string>> temp = csvToVecOfVecString("data.csv");
  //   
@@ -66,31 +66,32 @@ int main() {
 
 
 	///*Testing reading data in.*/
-	//cout << "Let's see if the readCSV function works!" << endl;
+	//cout << "Testing readCSV." << endl;
 	//cout << readCSV("data_fake.csv") << endl;
-	//cout << "Read CSV function works as intended. \n\n" << endl;
+	//cout << "This is exactly the data in data_fake.csv" << endl;
 	//cout << "This concludes testing readCSV. \n\n" << endl;
 
 
 
-	/*Testing for Model.h*/
+	/*Defining test samples used.*/
 	Model emptyModel;
 	MatrixXd data_train = readCSV("data.csv");
 	VectorXd sample_x = emptyModel.getXTrain().row(0).transpose();
 
 	
 
-	/*Testing for Layer.*/
+	///*Testing for Layer.*/
 	//cout << "Begin testing for Layer and its subclasses" << endl;
 	///*Layer*/
 	///*Test if readInput(...) works properly.*/
-	//cout << "Test if readInput(...) works properly at a general layer." << endl;
+	//cout << "Test if readInput works properly on a general layer." << endl;
 	//
 	//Layer generalLayer(sample_x.rows(), 5); // numInputs should match the inputting vector's dimension.
 	//										// numOutputs is randomly assigned.
 	//generalLayer.readInput(sample_x);
 	//cout << "Our sample input is supposed to be: \n" << sample_x << endl;
-	//cout << "In the general layer, the read-in input is: \n" << generalLayer.getInput() << endl;
+	//cout << "In the generic layer, the read-in input is: \n" << generalLayer.getInput() << endl;
+	//cout << "If we invoke calcOutput on a generic layer, we get the following:" << endl;
 	//generalLayer.calcOutput();
 	//cout << "This concludes testing for a generic layer. \n \n" << endl;
 
@@ -104,7 +105,7 @@ int main() {
 	//inputLayer1.calcOutput();
 	//cout << "In the input layer, the input is now: \n" << inputLayer1.getInput() << endl;
 	//cout << "In the input layer, the output is now \n" << inputLayer1.getOutput() << endl;
-	//cout << "This concludes testing for input layer \n\n" << endl;
+	//cout << "This concludes testing for input layer.\n\n" << endl;
 
 	///*OutputLayer*/
 	///*Testing calcOutput for Output Layer.*/
@@ -170,10 +171,10 @@ int main() {
 	//	" It actually is : \n" << hiddenLayer3.calcDoDinput() << "\n and our weights matrix"
 	//	" is \n" << hiddenLayer3.getWeights() << endl;
 
-	///*calcJacobians.*/
-	//cout << "\n\nNow we test if calcJacobians, which is the wrapper function for updating"
+	///*currSample_calcJacobians.*/
+	//cout << "\n\nNow we test if currSample_calcJacobians, which is the wrapper function for updating"
 	//	"all intermediate products works." << endl;
-	//hiddenLayer3.calcJacobians();
+	//hiddenLayer3.currSample_calcJacobians();
 	//cout << "Let's print out the three Do/Dweights." << endl;
 	//for (auto weight_jacobian : hiddenLayer3.getCurrSample_DoDweights()) {
 	//	cout << weight_jacobian << endl;
@@ -202,8 +203,8 @@ int main() {
 	//cout << "This concludes testing for a stand-alone HiddenLayer. \n\n" << endl;
 
 
-	//cout << "Begin testing Model" << endl;
-	///*Test the default constructor of Model.*/
+	cout << "Begin testing Model" << endl;
+	/*Test the default constructor of Model.*/
 	//cout << "Testing the default constructor Model." << endl;
 
 	//cout << "data in the empty model is: \n" << emptyModel.getDataTrain() << endl;
@@ -211,66 +212,165 @@ int main() {
 	//cout << "The y_train is: \n " << emptyModel.getYTrain() << endl;
 	//cout << "This is exactly the data in data_fake.csv! \n\n" << endl;
 
-	/*Testing the initiation of a model with an inputLayer.*/
-	cout << "Testing the initiation of a model and its inputLayer." << endl;
+	///*Testing the initiation of a model with an inputLayer.*/
+	//cout << "Testing the initiation of a model and its inputLayer." << endl;
 
- 	Model dataModel(data_train);
-	dataModel.addHiddenLayer(2, identity);
-	dataModel.addHiddenLayer(10, identity);
-	dataModel.addOutputLayer();
+ //	Model dataModel(data_train);
+	//dataModel.addHiddenLayer(2, identity);
+	//dataModel.addHiddenLayer(10, identity);
+	//dataModel.addOutputLayer();
 
-	cout << "Our data has " << data_train.rows() << " samples and " 
-		<< data_train.cols() << " variables." << endl;
-	cout << "The initiated model contains data of the following dimensions:\n"
-		<< dataModel.getDataTrain().rows() << " X " << dataModel.getDataTrain().cols() << "." << endl;
-	cout << "After adding the input layer, the input layer has " << dataModel.getLayer(0).getNumInputs()
-		<< " inputs." << endl;
-	cout << "The input layer has " << dataModel.getLayer(0).getNumOutputs() << " outputs." << endl;
-	cout << "The inputLayer has layerIndex: " << dataModel.getLayer(0).getLayerIndex() << endl;
-	cout << "Input layer behaves as expected. \n\n" << endl;
+	//cout << "Our data has " << data_train.rows() << " samples and " 
+	//	<< data_train.cols() << " variables." << endl;
+	//cout << "The initiated model contains data of the following dimensions:\n"
+	//	<< dataModel.getDataTrain().rows() << " X " << dataModel.getDataTrain().cols() << "." << endl;
+	//cout << "After adding the input layer, the input layer has " << dataModel.getLayer(0).getNumInputs()
+	//	<< " inputs." << endl;
+	//cout << "The input layer has " << dataModel.getLayer(0).getNumOutputs() << " outputs." << endl;
+	//cout << "The inputLayer has layerIndex: " << dataModel.getLayer(0).getLayerIndex() << endl;
+	//cout << "Input layer behaves as expected. \n\n" << endl;
 
-	
-	cout << "After adding one hidden layer, the model has now: \n" << dataModel.getNumOfLayers() << " layers"
-		" including the BOTH input and OUTPUT layer!"<< endl;
-	cout << "The first hidden layer has number of inputs: \n " << dataModel.getKthHiddenLayer(0).getNumInputs()
-		<< endl;
-	cout << "and the number of outputs: \n" << dataModel.getKthHiddenLayer(0).getNumOutputs() << endl;
-	cout << "Dimensions match expectation. \n\n " << endl;
+	//
+	//cout << "After adding one hidden layer, the model has now: \n" << dataModel.getNumOfLayers() << " layers"
+	//	" including the BOTH input and OUTPUT layer!"<< endl;
+	//cout << "The first hidden layer has number of inputs: \n " << dataModel.getKthHiddenLayer(0).getNumInputs()
+	//	<< endl;
+	//cout << "and the number of outputs: \n" << dataModel.getKthHiddenLayer(0).getNumOutputs() << endl;
+	//cout << "Dimensions match expectation. \n\n " << endl;
 
-	cout << "Adding a second hidden layer with 10 outputs. The second hidden layer has number of inputs: \n"
-		<< dataModel.getKthHiddenLayer(1).getNumInputs() << endl;
-	cout << "and number of outputs: \n" << dataModel.getKthHiddenLayer(1).getNumOutputs() << endl;
+	//cout << "Adding a second hidden layer with 10 outputs. The second hidden layer has number of inputs: \n"
+	//	<< dataModel.getKthHiddenLayer(1).getNumInputs() << endl;
+	//cout << "and number of outputs: \n" << dataModel.getKthHiddenLayer(1).getNumOutputs() << endl;
+	//cout << "Dimension match expecattion. \n\n" << endl;
+
+	//cout << "Testing model on a different input." << endl;
+ //   MatrixXd sample_data_ones = MatrixXd::Ones(10,4);
+	//cout << "Now the model is based on data: \n" << sample_data_ones << endl;
+	//Model dataModel2(sample_data_ones);
+	//cout << "The input layer has number of inputs: \n" << dataModel2.getLayer(0).getNumInputs() << endl;
+	//cout << "The input layer has numOfOutputs: \n" << dataModel2.getLayer(0).getNumOutputs() << endl;
+	//dataModel2.addHiddenLayer(5, identity);
+	//MatrixXd weights_hl0(5, 3);
+	//weights_hl0 << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15;
+	//VectorXd bias_hl0(5);
+	//bias_hl0 << 1, 2, 3, 4, 5;
+	//dataModel2.getKthHiddenLayer(0).setWeights(weights_hl0);
+	//dataModel2.getKthHiddenLayer(0).setBias(bias_hl0);
+	//cout << "The first hidden layer has number of inputs: \n"
+	//	<< dataModel2.getLayer(1).getNumInputs() << endl;
+	//cout << "and number of outputs: \n" << dataModel2.getLayer(1).getNumOutputs() << endl;
+	//cout << "The weight is: \n" << dataModel2.getKthHiddenLayer(0).getWeights() << endl;
+	//cout << "The bias is: \n" << dataModel2.getKthHiddenLayer(0).getBias() << endl;
+	//dataModel2.addHiddenLayer(2, identity);
+	//cout << "The second hidden layer has the following weights: \n" <<
+	//	dataModel2.getKthHiddenLayer(1).getWeights() << endl;
+	//cout << "and bias: \n" << dataModel2.getKthHiddenLayer(1).getBias() << endl;
+	//dataModel2.addOutputLayer();
+	//
+	//VectorXd firstSample = dataModel2.getXTrain().row(0).transpose();
+	//cout << "We perform forward propagation on the following sample: \n" << firstSample << endl;
+	//cout << "The output should be 272. It actually is :\n"
+	//	<< dataModel2.currSample_forwardProp(firstSample) << endl;
+	//cout << "which matches expectation. \n\n" << endl;
+
+	//cout << "Let's see if currSample_updateJacobian method works properly." << endl;
+	//dataModel2.currSample_updateJacobians();
+	//cout << "After updating the first HiddenLayer should have 5 DoDweightJs on the current sample."
+	//	" It currently contains: \n"
+	//	<< dataModel2.getKthHiddenLayer(0).getCurrSample_DoDweights().size() << endl;
+	//cout << "The first hidden layer has the following do/dWeightJ: " << endl;
+	//for (int j = 0; j < dataModel2.getKthHiddenLayer(0).getNumOutputs(); j++) {
+	//	cout << "dodweight" << j << " is:" << endl;
+	//	cout << dataModel2.getKthHiddenLayer(0).getCurrSample_DoDweightJ(j) << endl;
+	//}
+	//cout << "And the following do/dbiasJ:" << endl;
+	//for (int j = 0; j < dataModel2.getKthHiddenLayer(0).getNumOutputs(); j++) {
+	//	cout << "dodbias" << j << " is:" << endl;
+	//	cout << dataModel2.getKthHiddenLayer(0).getCurrSample_DoDbiasJ(j) << endl;
+	//}
+	//cout << "And the following do/dinput: \n"
+	//	<< dataModel2.getKthHiddenLayer(0).getCurrSample_DoDinput() << endl;
+
+	//cout << "The second hidden layer has the following do/dWeightJ: " << endl;
+	//for (int j = 0; j < dataModel2.getLayer(2).getNumOutputs(); j++) {
+	//	cout << "dodweight" << j << " is:" << endl;
+	//	cout << dataModel2.getKthHiddenLayer(1).getCurrSample_DoDweightJ(j) << endl;
+	//}
+	//cout << "And the following do/dbiasJ:" << endl;
+	//for (int j = 0; j < dataModel2.getLayer(2).getNumOutputs(); j++) {
+	//	cout << "dodbias" << j << " is:" << endl;
+	//	cout << dataModel2.getKthHiddenLayer(1).getCurrSample_DoDbiasJ(j) << endl;
+	//}
+	//cout << "And the following do/dinput: \n"
+	//	<< dataModel2.getKthHiddenLayer(1).getCurrSample_DoDinput() << endl;
+
+	//cout << "The output layer has the following do/dinput: \n"
+	//	<< dataModel2.getOutputLayer().getCurrSample_DoDinput() << endl;
+	//cout << "UpdateJacobian Method in Model does work as intended! \n\n" << endl;
+
+	///*Testing calcCurrSample_DlossDoFinal*/
+	//cout << "Let's say the true lable is 273, instead of the predicted 272. \n"
+	//	"The dloss/dy_hat on this sample should be -2(y_true - 272) = -2. Our model says dloss/dy_hat is: \n"
+	//	<< dataModel2.calcCurrSample_DlossDoFinal(273) << endl;
+	//cout << "If the true label is 215, the derivative should be 114. Our model says it is: \n"
+	//	<< dataModel2.calcCurrSample_DlossDoFinal(215) << endl;
+	//cout << "DlossDoFinal works as expected. \n\n" << endl;
+
+	///*Testing the updateCurrSample_ChainRuleFactor does produce sensible results.*/
+	//cout << "Testing the updateCurrSample_ChainRuleFactor does produce sensible results." << endl;
+	//dataModel2.currSample_updateChainRuleFactors(272);
+	//cout << "We've assumed the true label is 272, which is equal to the current predicted result.\n"
+	//	"The chainRuleFactors should all be 0, because Dloss/Dy_hat yields 0. Our model yields the"
+	//	" following results: " << endl;
+	//for (int i = 0; i < dataModel2.getNumOfLayers() - 2; i++) {
+	//	cout << "For the " << i << "-th layer, the chainRuleFactor is: \n" <<
+	//		dataModel2.getKthHiddenLayer(i).getCurrSample_ChainRuleFactor() << endl;
+	//}
+	//cout << "The behavior confirms our expecatation.\n\n" << endl;
+
+	//cout << "Let's see whether the sample-specific nebla adding works." << endl;
+	//dataModel2.currSample_addBySampleNeblas();
+	//for (int i = 0; i < dataModel2.getNumOfLayers() - 2; i++) {
+	//	cout << "For the " << i << "-th layer, the size of by sample neblaWeights vector is: \n"
+	//		<< dataModel2.getKthHiddenLayer(i).getNeblaWeights_BySampleVector().size() << endl;
+	//	cout << "The size of the bySample neblaBias vector is: \n"
+	//		<< dataModel2.getKthHiddenLayer(i).getNeblaBias_BySampleVector().size() << endl;
+	//	cout << "The cached do/dweights and do/dbias should be cleared.\n The do/dweights caching vector"
+	//		" is of size:\n" << dataModel2.getKthHiddenLayer(i).getCurrSample_DoDweights().size() << endl;
+	//	cout << "The do/dbias caching vector is of size:\n"
+	//		<< dataModel2.getKthHiddenLayer(i).getCurrSample_DoDbias().size() << endl;
+	//}
+	//cout << "BySampleNeblaWeights work as expected! \n\n" << endl;
+
+	//cout << "Let's push another sample in, and check whether the new bySample neblas are cached. " << endl;
+	//VectorXd secondSample_x = firstSample;
+	//dataModel2.currSample_forwardProp(secondSample_x);
+	//dataModel2.currSample_backProp(272);
+	//cout << "Let's see whether the sample-specific nebla adding works." << endl;
+	//for (int i = 0; i < dataModel2.getNumOfLayers() - 2; i++) {
+	//	cout << "For the " << i << "-th layer, the size of by sample neblaWeights vector should now be 2: \n"
+	//		<< dataModel2.getKthHiddenLayer(i).getNeblaWeights_BySampleVector().size() << endl;
+	//	cout << "The size of the bySample neblaBias vector is: \n"
+	//		<< dataModel2.getKthHiddenLayer(i).getNeblaBias_BySampleVector().size() << endl;
+	//	cout << "The cached do/dweights and do/dbias should be cleared.\n The do/dweights caching vector"
+	//		" is of size:\n" << dataModel2.getKthHiddenLayer(i).getCurrSample_DoDweights().size() << endl;
+	//	cout << "The do/dbias caching vector is of size:\n"
+	//		<< dataModel2.getKthHiddenLayer(i).getCurrSample_DoDbias().size() << endl;
+	//}
+	//cout << "For the first hidden layer, two cached nebla weights should be different: \n"
+	//	<< "The first one is: \n"
+	//	<< dataModel2.getKthHiddenLayer(0).getNeblaWeights_BySampleVector().at(0)
+	//	<< "\nThe second one is:\n"
+	//	<< dataModel2.getKthHiddenLayer(0).getNeblaWeights_BySampleVector().at(1) << endl;
+	//cout << "BySampleNeblaWeights still work as expected after adding in more samples! \n\n" << endl;
 
 
-	cout << "Testing model on a different input." << endl;
-    MatrixXd sample_data_ones = MatrixXd::Ones(10,4);
-	cout << "Now the model is based on data: \n" << sample_data_ones << endl;
-	Model dataModel2(sample_data_ones);
-	cout << "The input layer has number of inputs: \n" << dataModel2.getLayer(0).getNumInputs() << endl;
-	cout << "The input layer has numOfOutputs: \n" << dataModel2.getLayer(0).getNumOutputs() << endl;
-	dataModel2.addHiddenLayer(5, identity);
-	MatrixXd weights_hl0(5, 3);
-	weights_hl0 << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15;
-	VectorXd bias_hl0(5);
-	bias_hl0 << 1, 2, 3, 4, 5;
-	dataModel2.getKthHiddenLayer(0).setWeights(weights_hl0);
-	dataModel2.getKthHiddenLayer(0).setBias(bias_hl0);
-	cout << "The first hidden layer has number of inputs: \n"
-		<< dataModel2.getLayer(1).getNumInputs() << endl;
-	cout << "and number of outputs: \n" << dataModel2.getLayer(1).getNumOutputs() << endl;
-	cout << "The weight is: \n" << dataModel2.getKthHiddenLayer(0).getWeights() << endl;
-	cout << "The bias is: \n" << dataModel2.getKthHiddenLayer(0).getBias() << endl;
-	dataModel2.addHiddenLayer(2, identity);
-	cout << "The second hidden layer has the following weights: \n" <<
-		dataModel2.getKthHiddenLayer(1).getWeights() << endl;
-	cout << "and bias: \n" << dataModel2.getKthHiddenLayer(1).getBias() << endl;
-	dataModel2.addOutputLayer();
-	
-	VectorXd firstSample = dataModel2.getXTrain().row(0).transpose();
-	cout << "We perform forward propagation on the following sample: \n" << firstSample << endl;
-	cout << "The output should be 272. It actually is :\n" 
-		<< dataModel2.forwardProp_oneSample(firstSample);
-
+	cout << "Here comes the exciting part. Let's test the dataset wise forwardProp and backProp." << endl;
+	Model dataModel3(data_train);
+	dataModel3.addHiddenLayer(2);
+	dataModel3.addOutputLayer();
+	cout << "The y_hat is: " << dataModel3.forwardProp(data_train) << endl;
+	dataModel3.backProp(data_train);
 
 	///*Testing utitlities.*/
 	//cout << "Testing the utilities funcitons. Note they don't belong to any classes." << endl;

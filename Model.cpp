@@ -5,6 +5,7 @@
 #include "OutputLayer.h"
 #include "Utilities.h"
 #include <Eigen/Dense>
+#include <cmath>
 
 using namespace Eigen;
 using namespace std;
@@ -64,7 +65,7 @@ void Model::addOutputLayer()
 	outputLayer = currOutputLayer;
 }
 
-double Model::forwardProp_oneSample(Eigen::VectorXd x)
+double Model::currSample_forwardProp(Eigen::VectorXd x)
 {
 	inputLayer.readInput(x);
 	inputLayer.calcOutput();
@@ -77,6 +78,108 @@ double Model::forwardProp_oneSample(Eigen::VectorXd x)
 	return outputLayer.getOutput()(0);
 }
 
+Eigen::VectorXd Model::forwardProp(Eigen::MatrixXd data)
+{
+	int n = data.rows();
+	int q = data.cols() - 1;
+	VectorXd y = data.col(0);
+	MatrixXd X = data.block(0, 1, n, q);
+	VectorXd y_hat = y;
+	for (int i = 0; i < n; i++) {
+		VectorXd curr_x = X.row(i).transpose();
+		y_hat(i) = currSample_forwardProp(curr_x);
+	}
+	return y_hat;
+}
+
+void Model::currSample_updateJacobians()
+{
+	for (HiddenLayer& hl : hiddenLayers) {
+		hl.currSample_calcJacobians();
+	}
+	outputLayer.calcDoDinput();
+}
+
+void Model::backProp(Eigen::MatrixXd data)
+{
+	int n = data.rows();
+	int q = data.cols() - 1;
+	VectorXd y = data.col(0);
+	MatrixXd X = data.block(0, 1, n, q);
+	for (int i = 0; i < n; i++) {
+		VectorXd curr_x = X.row(i).transpose();
+		double curr_y = y(i);
+		currSample_forwardProp(curr_x);
+		currSample_backProp(curr_y);
+	}
+	cout << "The current bySample_neblaWeights size for the first HiddenLayer "
+		"should be " << n << ". It actually is: \n" 
+		<< getKthHiddenLayer(0).getNeblaWeights_BySampleVector().size() << endl;
+	calcNeblas();
+}
+
+void Model::currSample_backProp(double y)
+{
+	currSample_updateJacobians();
+	currSample_updateChainRuleFactors(y);
+	currSample_addBySampleNeblas();
+}
+
+
+double Model::calcCurrSample_DlossDoFinal(double y_true, double perturbance)
+{
+	double oFinal = getOutputLayer().getOutput()(0);
+	double originalLoss = oneSample_MSEloss(y_true, oFinal);
+	double perturbedOFinal = oFinal + perturbance;
+	double perturbedLoss = oneSample_MSEloss(y_true, perturbedOFinal);
+	double result = (perturbedLoss - originalLoss) / perturbance;
+	currSample_DlossDoFinal = result;
+	return result;
+}
+
+double Model::getCurrSample_DlossDoFinal()
+{
+	return currSample_DlossDoFinal;
+}
+
+double Model::oneSample_MSEloss(double y_true, double y_hat)
+{
+	return pow((y_hat - y_true),2);
+}
+
+void Model::currSample_updateChainRuleFactors()
+{
+	int k = hiddenLayers.size() - 1;
+	MatrixXd runningChainRuleFactor 
+		= getOutputLayer().getCurrSample_DoDinput() * getCurrSample_DlossDoFinal();
+	getKthHiddenLayer(k).setCurrSample_ChainRuleFactor(runningChainRuleFactor);
+	while (k > 0) {
+		runningChainRuleFactor
+			= getKthHiddenLayer(k).getCurrSample_DoDinput() * runningChainRuleFactor;
+		k--;
+		getKthHiddenLayer(k).setCurrSample_ChainRuleFactor(runningChainRuleFactor);
+	}
+}
+
+void Model::currSample_updateChainRuleFactors(double y_true, double perturbance)
+{
+	calcCurrSample_DlossDoFinal(y_true, perturbance);
+	currSample_updateChainRuleFactors();
+}
+
+void Model::currSample_addBySampleNeblas()
+{
+	for (HiddenLayer& hl : hiddenLayers) {
+		hl.addCurrSample_neblas();
+	}
+}
+
+void Model::calcNeblas()
+{
+	for (HiddenLayer& hl : hiddenLayers) {
+		hl.calcNeblas();
+	}
+}
 
 Layer& Model::getLayer(int i)
 {

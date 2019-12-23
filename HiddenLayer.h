@@ -14,10 +14,14 @@ The neblas are the final derivatives used in sample_wise gradient descent. This 
 1. It's the averaged derivative dloss/dweights over all rows. These summand derivatives need to be stored somewhere.
 2. It's only calculatable from the model. The fields here only act as storage. 
 
-
 How are the neblas calculated?
 For EACH SAMPLE, dloss/dw_kj = do_k/dw_kj * do_(k+1)/do_k * ... * do_L/do_(L-1) * do_final/do_L
-(here the subscript k can be omitted since we're operating within one layer)*/
+(here the subscript k can be omitted since we're operating within one layer). We call the first term
+do/dweightJ, the rest "currSample_ChainRuleFactor." dloss/dW_k is then stacking dloss/dw_kj into a
+matrix by column. This sample's nebla is then the transpose of dloss/dW_k, and is cached in the vector
+neblaWeights_bySample.
+Iterate this step over all samples in the data set, we get numOfSamples elements in neblaWeights_bySample.
+Averging over them gives the data-wise nebla used in parameter updating.*/
 class HiddenLayer :
 	public Layer
 {
@@ -89,7 +93,6 @@ public:
 	Eigen::MatrixXd getWeights();
 	void setWeights(Eigen::MatrixXd);
 	
-
 	Eigen::VectorXd getBias();
 	void setBias(Eigen::VectorXd);
 
@@ -127,7 +130,25 @@ public:
 	the derivative of output against the weights of n_k neurons. The jth element
 	is do_k/dw_kj. */
 	std::vector<Eigen::MatrixXd>& getCurrSample_DoDweights();
-
+	/*Get do/dweightJ. Defined for convinient testing.*/
+	Eigen::MatrixXd& getCurrSample_DoDweightJ(int j);
+	/*Calculate dloss/dweights for the current sample. The jth column of the matrix
+	represent dloss/dweightJ for this sample. The dimension is therefore p_k X n_k.
+	- Note per our notation, the j-th column is nothing but DoDweightJ X chainRuleFactor,
+	where chainRuleFactor = do_(k+1)/do_k * do_(k+2)/do_(k+1) * ... * do_L/do_(L-1) * do_final/do_L * dloss/do_final.
+	- After calcJacobian, all of these derivatives are stored in the layers. DoDweightJ is the
+	j-th element of currSample_DoDweights, and chainRuleFactor is stored in the field. We get the 
+	columns of currSample_DlossDweight by multiplying each element in currSample_DoDweights with 
+	chainRuleFactor.
+	- Further note that this is not the nebla yet! We need to tranpose it to match the dimension
+	of weights. */
+	Eigen::MatrixXd calcCurrSample_DlossDWeights();
+	/*Tranpose the result of calcCurrSample_DlossDweight() and add it to neblaWeights_bySample.
+	Then clears all caching of intermediate products on the current sample, including 
+	currSample_ChainRuleFactor, currSample_DoDweights, currSample_DoDbias, and currSample_DoDinput.*/
+	void addCurrSample_neblaWeights();
+	/*For conviniently accessing the individual sample's nebla weights.*/
+	Eigen::MatrixXd getJthSample_neblaWeights(int j);
 
 	/*Calculates do_k/db_k. The implementation performs nuermical differentiation
 	in the context, i.e., doesn't invoke the numericDiff in utitlies.h. This
@@ -143,13 +164,55 @@ public:
 	the derivative of output against the bias of n_k neuron. The jth element
 	is do_k/db_kj. */
 	std::vector<Eigen::MatrixXd>& getCurrSample_DoDbias();
+	/*Get do/dbiasJ. Defined for convinient testing.*/
+	Eigen::MatrixXd& getCurrSample_DoDbiasJ(int j);
+	/*Similar to calcCurrSample_DlossDbias, returns a 1 X n_k matrix where the jth column is 
+	Dloss/DbiasJ. 
+	- The j-th column is calculated from (jth element in currSample_DoDbias) X chainRuleFactor.
+	- Not yet currSample_neblaBias. Needs to be transposed.*/
+	Eigen::RowVectorXd calcCurrSample_DlossDbias();
+	/*Transposes the output of calcCurrSample_DlossDbias and add it to the neblaBias_bySample vector.
+	Clears caching in currSample_DoDbiases.*/
+	void addCurrSample_neblaBias();
+	/*For conviniently accessing individual sample's nebla bias.*/
+	Eigen::VectorXd getJthSample_neblaBias(int j);
+
+	/*A wrapper function for adding two currSample_neblas.*/
+	void addCurrSample_neblas();
 
     /*Calculate all intermediate products.*/
-	void calcJacobians();
+	void currSample_calcJacobians();
 
-	Eigen::VectorXd getNeblaWeights();
+	
 
-	Eigen::VectorXd getNeblaBias();
+	/*Averages over neblaWeights_bySample to get the data-wise neblaWeights.
+	Assigns the neblaWeight to the field.
+	Then clears cached neblaWeights_bySample. */
+	Eigen::MatrixXd calcNeblaWeights();
+
+	/*Averages over neblaBias_bySample to get the data-wise neblaBias.
+	Assigns the neblaBias to the field.
+	Then clears cached neblaBias_bySample.*/
+	Eigen::VectorXd calcNeblaBias();
+
+	/*Runs calcNeblaWeights and CalcNeblaBias.*/
+	void calcNeblas();
+
+	/*Returns a reference to the sample-wise nebla weights caching vector. Defined for testing.*/
+	std::vector<Eigen::MatrixXd>& getNeblaWeights_BySampleVector();
+	/*Returns a reference to the sample-wise nebla bias caching vector. Defined for testing.*/
+	std::vector<Eigen::VectorXd>& getNeblaBias_BySampleVector();
+
+	Eigen::MatrixXd& getNeblaWeights();
+
+	Eigen::VectorXd& getNeblaBias();
+
+	
+	void updateWeights(double learningRate = 0.0005);
+
+	void updateBias(double learningRate = 0.0005);
+
+	void updateParams(double learningRate = 0.0005);
 
 	/*Lets the user pass in a self-defined activation function.*/
 	void setActivation(std::function<double(double)> func);
