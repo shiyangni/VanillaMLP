@@ -94,11 +94,11 @@ public:
 	over the cached per sample neblas to calculate data-wise neblas, and clears those caches!*/
 	void currSample_backProp(double y);
 
-	/*Computes the mse loss of y_hat based on X against y. Uses forward_prop. */
-	double loss(Eigen::MatrixXd X, Eigen::VectorXd y);
+	/*Computes the mse loss of y_hat against y. */
+	double mseLoss(Eigen::VectorXd y_hat, Eigen::VectorXd y);
 
-	/*Updates parameter using SGD on X_train and y_train. Utilizes gd_oneIteration.*/
-	void train(double lambda);
+	/*Trains the model on data using Gradient Descent.*/
+	void train_gd(Eigen::MatrixXd data_train, int epochs, double lambda = 0.005);
 
 	/*Calculates the right-most element in the currSample_ChainRuleFactor and
 	caches the output in the field. oFinal is just another name for y_hat on the 
@@ -124,6 +124,9 @@ public:
 	/*Lets all the layers calcNeblas. Invoked after doing currSample_forwardProp() 
 	and currSample_backwardProp() on all rows of training data.*/
 	void calcNeblas();
+
+	/*Lets all hidden layers update weights and biases. The default learning rate is 0.005.*/
+	void updateParams(double lambda=0.005);
 
 	Layer& getLayer(int i);
 

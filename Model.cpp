@@ -6,6 +6,7 @@
 #include "Utilities.h"
 #include <Eigen/Dense>
 #include <cmath>
+#include <ctime>
 
 using namespace Eigen;
 using namespace std;
@@ -112,9 +113,9 @@ void Model::backProp(Eigen::MatrixXd data)
 		currSample_forwardProp(curr_x);
 		currSample_backProp(curr_y);
 	}
-	cout << "The current bySample_neblaWeights size for the first HiddenLayer "
-		"should be " << n << ". It actually is: \n" 
-		<< getKthHiddenLayer(0).getNeblaWeights_BySampleVector().size() << endl;
+	//cout << "The current bySample_neblaWeights size for the first HiddenLayer "
+	//	"should be " << n << ". It actually is: \n" 
+	//	<< getKthHiddenLayer(0).getNeblaWeights_BySampleVector().size() << endl;
 	calcNeblas();
 }
 
@@ -123,6 +124,29 @@ void Model::currSample_backProp(double y)
 	currSample_updateJacobians();
 	currSample_updateChainRuleFactors(y);
 	currSample_addBySampleNeblas();
+}
+
+double Model::mseLoss(Eigen::VectorXd y_hat, Eigen::VectorXd y)
+{
+	int n = y_hat.rows();
+	VectorXd diff = y_hat - y;
+	return pow(diff.squaredNorm(), 2) / n;
+}
+
+void Model::train_gd(Eigen::MatrixXd data, int epochs, double lambda)
+{
+	for (int i = 0; i < epochs; i++) {
+		time_t startTime;
+		time(&startTime);
+		backProp(data);
+		updateParams(lambda);
+		VectorXd y_hat = forwardProp(data);
+		double loss = mseLoss(y_hat, data.col(0));
+		time_t endTime;
+		time(&endTime);
+		cout << "Epoch: " << i << ", Loss: " << loss << " Seconds Elapsed: " 
+			<< endTime - startTime << endl;
+	}
 }
 
 
@@ -178,6 +202,13 @@ void Model::calcNeblas()
 {
 	for (HiddenLayer& hl : hiddenLayers) {
 		hl.calcNeblas();
+	}
+}
+
+void Model::updateParams(double lambda)
+{
+	for (HiddenLayer& hl : hiddenLayers) {
+		hl.updateParams(lambda);
 	}
 }
 

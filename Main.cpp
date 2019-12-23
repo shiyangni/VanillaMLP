@@ -365,12 +365,20 @@ int main() {
 	//cout << "BySampleNeblaWeights still work as expected after adding in more samples! \n\n" << endl;
 
 
-	cout << "Here comes the exciting part. Let's test the dataset wise forwardProp and backProp." << endl;
-	Model dataModel3(data_train);
-	dataModel3.addHiddenLayer(2);
-	dataModel3.addOutputLayer();
-	cout << "The y_hat is: " << dataModel3.forwardProp(data_train) << endl;
-	dataModel3.backProp(data_train);
+	//cout << "Here comes the exciting part. Let's test the dataset wise forwardProp and backProp." << endl;
+	//Model dataModel3(data_train);
+	//dataModel3.addHiddenLayer(2);
+	//dataModel3.addOutputLayer();
+	//cout << "The y_hat is: " << dataModel3.forwardProp(data_train) << endl;
+	//dataModel3.backProp(data_train);
+
+	/*Integrated Test.*/
+    MatrixXd data_easy = readCSV("data_easy.csv");
+	Model m(data_easy.row(0));
+	m.addHiddenLayer(1, identity);
+	m.addOutputLayer();
+	m.train_gd(data_easy.row(1), 10, 0.001);
+
 
 	///*Testing utitlities.*/
 	//cout << "Testing the utilities funcitons. Note they don't belong to any classes." << endl;
