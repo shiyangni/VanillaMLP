@@ -505,19 +505,19 @@ Denote the weights in the kth `HiddenLayer` W_k, a matrix. Further assume the mo
 
 Naively to calculate dloss/dW_k, we can use the simple forward difference method -- for each element in W_k, add a small perturbance, and recalculate the loss with perturbed weights, and get the rise over run. But this method is inefficient: to calculate the perturbed loss over the kth layer, L - k + 1 layers have to re-feed forward the inputs. Calculating the perturbed loss over all layers would involve BigTheta(L^2) number of re-feed forwards.
 
-A smarter way is to break dloss/dW_{k}_ into intermediate products using chain rule:
+A smarter way is to break dloss/dW{k} into intermediate products using chain rule:
 
-dloss/dW_{k}_  = do_{k}_/dW_{k}_ * do_{k+1}_/do_{k}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_)
+dloss/dW{k}  = do{k}/dW{k} * do{k+1}/do{k} * ... * do{L}/do{L-1} * (dOutput/do{L} * dloss/do{L})
 
-where o_{k}_ represents the output of the kth `HiddenLayer`. Notice the calculation of any do_{k}_/do_{k-1}_ can be done once the kth layer has read in inputs. It doesn't rely on knowing the outputs of later layers.
+where o{k} represents the output of the kth `HiddenLayer`. Notice the calculation of any do{k}/do{k-1} can be done once the kth layer has read in inputs. It doesn't rely on knowing the outputs of later layers.
 
 After the current sample has been read in, we do the following:
 
-1. First, for all layers, calculate do_{k}_/dW_{k}_ using forward difference method. This involves feeding forward the perturbed weights once for each layer, thus there are L feed forward actions.
+1. First, for all layers, calculate do{k}/dW{k} using forward difference method. This involves feeding forward the perturbed weights once for each layer, thus there are L feed forward actions.
 
-2. Second, for starting from the last hidden layer, calculate and cache (do_{k+1}_/do_{k}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_).  Notice we don't have to recalculate the whole product for each layer -- simply keep a running product, do_{k+2}_/do_{k+1}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_, and multiply that product with the current do_{k+1}_/do_{k}_. 
+2. Second, for starting from the last hidden layer, calculate and cache (do{k+1}/do{k} * ... * do{L}/do{L-1} * (dOutput/do{L} * dloss/do{L}).  Notice we don't have to recalculate the whole product for each layer -- simply keep a running product, do{k+2}/do{k+1} * ... * do{L}/do{L-1} * (dOutput/do{L} * dloss/do{L}, and multiply that product with the current do{k+1}/do{k}. 
 
-   We call this running sum `currSample_ChainRuleFactor`. Updating this chain rule factor simply requires each layer to calculate once the do_{k+1}_/do_{k}_ through forward difference. In total, this involves L feed forward actions with perturbed weights.
+   We call this running sum `currSample_ChainRuleFactor`. Updating this chain rule factor simply requires each layer to calculate once the do{k+1}/do{k} through forward difference. In total, this involves L feed forward actions with perturbed weights.
 
 Thus in total, using caching, we're able to reducing the number of forward difference calculation from BigTheta(L^2) to BigTheta(L).
 
@@ -536,15 +536,15 @@ void Model::currSample_backProp(double y)
 
 What we ignored in the above formulation is the dimension of each term in 
 
-dloss/dW_{k}_  = do_{k}_/dW_{k}_ * do_{k+1}_/do_{k}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_)
+dloss/dW{k}  = do{k}/dW{k} * do{k+1}/do{k} * ... * do{L}/do{L-1} * (dOutput/do{L} * dloss/do{L})
 
-Let's say the k-th `HiddenLayer` has n_{k}_ outputs and p_{k}_ inputs. As the last hidden layer's output is this hidden layer's input, p_{k}_ = n_{k-1}_. 
+Let's say the k-th `HiddenLayer` has n{k} outputs and p{k} inputs. As the last hidden layer's output is this hidden layer's input, p{k} = n{k-1}. 
 
-Then o_{k}_ is a vector of n_{k}_ dimensions, and o_{k-1}_ is a vector of n_{k-1}_ dimensions. Using the denominator layout, where by the number of rows of the denominator determines the number of rows in the Jacobian, do_{k+1}_/do_{k}_ is a n_{k}_ x n_{k+1}_ matrix. A brief calculation shows that the expression starting from the second term, i.e,  do_{k+1}_/do_{k}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_),  has matching dimension between each successive term.
+Then o{k} is a vector of n{k} dimensions, and o{k-1} is a vector of n{k-1} dimensions. Using the denominator layout, where by the number of rows of the denominator determines the number of rows in the Jacobian, do{k+1}/do{k} is a n{k} x n{k+1} matrix. A brief calculation shows that the expression starting from the second term, i.e,  do{k+1}/do{k} * ... * do{L}/do{L-1} * (dOutput/do{L} * dloss/do{L}),  has matching dimension between each successive term.
 
 But the first time is a vector's derivative w.r.t to a matrix, which by analogy should be a 3-order tensor. We are not familiar with tensor multiplications, so we get around that problem by __calculating the derivatives row by row, and stack them back into a matrix__ after multiplying with the running product.
 
-Thus in the `currSample_updateJacobians()` step, what actually happens is do_{k}_/d(weight of jth neuron) is calculated neuron by neuron, and cached into a vector. In `currSample_addBySampleNeblas()`, each cached element is multiplied with the running product on the right, and the resulting vectors are stacked back into a matrix.
+Thus in the `currSample_updateJacobians()` step, what actually happens is do{k}/d(weight of jth neuron) is calculated neuron by neuron, and cached into a vector. In `currSample_addBySampleNeblas()`, each cached element is multiplied with the running product on the right, and the resulting vectors are stacked back into a matrix.
 
 Is it overcomplicating backprop? 
 
