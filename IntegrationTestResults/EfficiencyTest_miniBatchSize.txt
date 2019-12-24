@@ -1,0 +1,102 @@
+2.1 Testing how minibatch size affects training speed.
+
+Effect of minibatch_size on training speed.
+The training data here is linearly generated (see code from DataGeneration.ipynb). It contains 3500 samples and each x contains 7 features.
+We train a simple regression model (1 hiddenlayer with 1 neuron, identity activation) on the data, using sgd with batch_sizes = 250, 500, 750, 1000, 1250, 1500, 1750 and 2000. The result is as follows:
+
+Batch_size = 250:
+Epoch: 0, Loss: 2.53327e+16, Time Elapsed: 327 milliseconds
+Epoch: 1, Loss: 2.36613e+16, Time Elapsed: 328 milliseconds
+Epoch: 2, Loss: 2.14247e+16, Time Elapsed: 339 milliseconds
+Epoch: 3, Loss: 2.13626e+16, Time Elapsed: 337 milliseconds
+Epoch: 4, Loss: 1.94872e+16, Time Elapsed: 334 milliseconds
+Epoch: 5, Loss: 1.7922e+16, Time Elapsed: 327 milliseconds
+Epoch: 6, Loss: 1.71324e+16, Time Elapsed: 339 milliseconds
+Epoch: 7, Loss: 1.74064e+16, Time Elapsed: 333 milliseconds
+Epoch: 8, Loss: 1.71282e+16, Time Elapsed: 338 milliseconds
+Epoch: 9, Loss: 1.63949e+16, Time Elapsed: 351 milliseconds
+
+Batch_size = 500:
+Epoch: 0, Loss: 1.50634e+16, Time Elapsed: 482 milliseconds
+Epoch: 1, Loss: 1.46926e+16, Time Elapsed: 495 milliseconds
+Epoch: 2, Loss: 1.37443e+16, Time Elapsed: 464 milliseconds
+Epoch: 3, Loss: 1.30938e+16, Time Elapsed: 473 milliseconds
+Epoch: 4, Loss: 1.28944e+16, Time Elapsed: 464 milliseconds
+Epoch: 5, Loss: 1.29249e+16, Time Elapsed: 461 milliseconds
+Epoch: 6, Loss: 1.1807e+16, Time Elapsed: 480 milliseconds
+Epoch: 7, Loss: 1.08319e+16, Time Elapsed: 456 milliseconds
+Epoch: 8, Loss: 1.03731e+16, Time Elapsed: 466 milliseconds
+Epoch: 9, Loss: 9.72618e+15, Time Elapsed: 483 milliseconds
+
+Batch_size = 750:
+Epoch: 0, Loss: 9.19267e+15, Time Elapsed: 593 milliseconds
+Epoch: 1, Loss: 9.11161e+15, Time Elapsed: 604 milliseconds
+Epoch: 2, Loss: 8.93699e+15, Time Elapsed: 591 milliseconds
+Epoch: 3, Loss: 9.08605e+15, Time Elapsed: 599 milliseconds
+Epoch: 4, Loss: 9.18936e+15, Time Elapsed: 602 milliseconds
+Epoch: 5, Loss: 8.9379e+15, Time Elapsed: 605 milliseconds
+Epoch: 6, Loss: 8.84316e+15, Time Elapsed: 608 milliseconds
+Epoch: 7, Loss: 8.35956e+15, Time Elapsed: 593 milliseconds
+Epoch: 8, Loss: 8.41495e+15, Time Elapsed: 592 milliseconds
+Epoch: 9, Loss: 8.41763e+15, Time Elapsed: 607 milliseconds
+
+Batch_size = 1000:
+Epoch: 0, Loss: 8.44139e+15, Time Elapsed: 724 milliseconds
+Epoch: 1, Loss: 8.09404e+15, Time Elapsed: 739 milliseconds
+Epoch: 2, Loss: 7.62665e+15, Time Elapsed: 736 milliseconds
+Epoch: 3, Loss: 7.38243e+15, Time Elapsed: 747 milliseconds
+Epoch: 4, Loss: 7.07441e+15, Time Elapsed: 740 milliseconds
+Epoch: 5, Loss: 6.6707e+15, Time Elapsed: 730 milliseconds
+Epoch: 6, Loss: 6.66914e+15, Time Elapsed: 740 milliseconds
+Epoch: 7, Loss: 6.53266e+15, Time Elapsed: 736 milliseconds
+Epoch: 8, Loss: 6.25586e+15, Time Elapsed: 729 milliseconds
+Epoch: 9, Loss: 5.93687e+15, Time Elapsed: 750 milliseconds
+
+Batch_size = 1250:
+Epoch: 0, Loss: 5.74441e+15, Time Elapsed: 889 milliseconds
+Epoch: 1, Loss: 5.62976e+15, Time Elapsed: 863 milliseconds
+Epoch: 2, Loss: 5.40353e+15, Time Elapsed: 869 milliseconds
+Epoch: 3, Loss: 5.34083e+15, Time Elapsed: 869 milliseconds
+Epoch: 4, Loss: 5.16191e+15, Time Elapsed: 862 milliseconds
+Epoch: 5, Loss: 5.23598e+15, Time Elapsed: 884 milliseconds
+Epoch: 6, Loss: 5.10366e+15, Time Elapsed: 869 milliseconds
+Epoch: 7, Loss: 5.06938e+15, Time Elapsed: 876 milliseconds
+Epoch: 8, Loss: 4.99835e+15, Time Elapsed: 867 milliseconds
+Epoch: 9, Loss: 5.07655e+15, Time Elapsed: 858 milliseconds
+
+Batch_size = 1500:
+Epoch: 0, Loss: 4.95183e+15, Time Elapsed: 1005 milliseconds
+Epoch: 1, Loss: 4.82478e+15, Time Elapsed: 1029 milliseconds
+Epoch: 2, Loss: 4.82007e+15, Time Elapsed: 987 milliseconds
+Epoch: 3, Loss: 4.80423e+15, Time Elapsed: 1002 milliseconds
+Epoch: 4, Loss: 4.87371e+15, Time Elapsed: 1006 milliseconds
+Epoch: 5, Loss: 4.84422e+15, Time Elapsed: 992 milliseconds
+Epoch: 6, Loss: 4.83176e+15, Time Elapsed: 1015 milliseconds
+Epoch: 7, Loss: 4.70363e+15, Time Elapsed: 1015 milliseconds
+Epoch: 8, Loss: 4.60853e+15, Time Elapsed: 992 milliseconds
+Epoch: 9, Loss: 4.59607e+15, Time Elapsed: 995 milliseconds
+
+Batch_size = 1750:
+Epoch: 0, Loss: 4.64499e+15, Time Elapsed: 1159 milliseconds
+Epoch: 1, Loss: 4.56626e+15, Time Elapsed: 1137 milliseconds
+Epoch: 2, Loss: 4.50204e+15, Time Elapsed: 1135 milliseconds
+Epoch: 3, Loss: 4.54712e+15, Time Elapsed: 1137 milliseconds
+Epoch: 4, Loss: 4.57265e+15, Time Elapsed: 1129 milliseconds
+Epoch: 5, Loss: 4.59123e+15, Time Elapsed: 1146 milliseconds
+Epoch: 6, Loss: 4.61646e+15, Time Elapsed: 1169 milliseconds
+Epoch: 7, Loss: 4.65208e+15, Time Elapsed: 1142 milliseconds
+Epoch: 8, Loss: 4.70754e+15, Time Elapsed: 1137 milliseconds
+Epoch: 9, Loss: 4.58688e+15, Time Elapsed: 1137 milliseconds
+
+Batch_size = 2000:
+Epoch: 0, Loss: 4.58329e+15, Time Elapsed: 1319 milliseconds
+Epoch: 1, Loss: 4.49471e+15, Time Elapsed: 1321 milliseconds
+Epoch: 2, Loss: 4.45113e+15, Time Elapsed: 1272 milliseconds
+Epoch: 3, Loss: 4.42429e+15, Time Elapsed: 1269 milliseconds
+Epoch: 4, Loss: 4.43087e+15, Time Elapsed: 1273 milliseconds
+Epoch: 5, Loss: 4.43919e+15, Time Elapsed: 1269 milliseconds
+Epoch: 6, Loss: 4.47988e+15, Time Elapsed: 1260 milliseconds
+Epoch: 7, Loss: 4.41772e+15, Time Elapsed: 1280 milliseconds
+Epoch: 8, Loss: 4.42223e+15, Time Elapsed: 1278 milliseconds
+Epoch: 9, Loss: 4.4128e+15, Time Elapsed: 1269 milliseconds
+It's obvious that the training time grows linearly with mini batch size.
