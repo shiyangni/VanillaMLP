@@ -1,0 +1,51 @@
+2.3 Test how number of neurons affect training speed.
+
+A model with 1 hidden layer that has 1 neuron has the following training performance:
+Epoch: 0, Loss: 2.37895e+16, Time Elapsed: 328 milliseconds
+Epoch: 1, Loss: 2.18044e+16, Time Elapsed: 331 milliseconds
+Epoch: 2, Loss: 2.1399e+16, Time Elapsed: 322 milliseconds
+Epoch: 3, Loss: 1.95866e+16, Time Elapsed: 338 milliseconds
+Epoch: 4, Loss: 1.78183e+16, Time Elapsed: 334 milliseconds
+Epoch: 5, Loss: 1.6501e+16, Time Elapsed: 333 milliseconds
+Epoch: 6, Loss: 1.63649e+16, Time Elapsed: 326 milliseconds
+Epoch: 7, Loss: 1.5181e+16, Time Elapsed: 359 milliseconds
+Epoch: 8, Loss: 1.44907e+16, Time Elapsed: 340 milliseconds
+Epoch: 9, Loss: 1.46814e+16, Time Elapsed: 325 milliseconds
+
+A model with 1 hidden layer that has 3 neurons has the following training perforamnce:
+Epoch: 0, Loss: 4.68939e+15, Time Elapsed: 959 milliseconds
+Epoch: 1, Loss: 5.03447e+15, Time Elapsed: 945 milliseconds
+Epoch: 2, Loss: 4.53709e+15, Time Elapsed: 950 milliseconds
+Epoch: 3, Loss: 4.24823e+15, Time Elapsed: 955 milliseconds
+Epoch: 4, Loss: 3.95887e+15, Time Elapsed: 948 milliseconds
+Epoch: 5, Loss: 3.87876e+15, Time Elapsed: 952 milliseconds
+Epoch: 6, Loss: 3.95953e+15, Time Elapsed: 958 milliseconds
+Epoch: 7, Loss: 3.81723e+15, Time Elapsed: 968 milliseconds
+Epoch: 8, Loss: 3.9007e+15, Time Elapsed: 962 milliseconds
+Epoch: 9, Loss: 3.80634e+15, Time Elapsed: 979 milliseconds
+
+A model with 1 hidden layer that has 5 neurons has the following training perforamnce:
+Epoch: 0, Loss: 5.66341e+15, Time Elapsed: 2288 milliseconds
+Epoch: 1, Loss: 4.96649e+15, Time Elapsed: 2318 milliseconds
+Epoch: 2, Loss: 4.2797e+15, Time Elapsed: 2329 milliseconds
+Epoch: 3, Loss: 4.42179e+15, Time Elapsed: 2298 milliseconds
+Epoch: 4, Loss: 4.05456e+15, Time Elapsed: 2285 milliseconds
+Epoch: 5, Loss: 3.73989e+15, Time Elapsed: 2321 milliseconds
+Epoch: 6, Loss: 3.75596e+15, Time Elapsed: 2295 milliseconds
+Epoch: 7, Loss: 3.71505e+15, Time Elapsed: 2307 milliseconds
+Epoch: 8, Loss: 3.71669e+15, Time Elapsed: 2288 milliseconds
+Epoch: 9, Loss: 3.71584e+15, Time Elapsed: 2294 milliseconds
+
+A model with 1 hidden layer that has 7 neurons has the following training perforamnce:
+Epoch: 0, Loss: 3.20344e+16, Time Elapsed: 4633 milliseconds
+Epoch: 1, Loss: 2.82482e+16, Time Elapsed: 4841 milliseconds
+Epoch: 2, Loss: 2.07291e+16, Time Elapsed: 5471 milliseconds
+Epoch: 3, Loss: 1.17285e+16, Time Elapsed: 4887 milliseconds
+Epoch: 4, Loss: 1.01241e+16, Time Elapsed: 4650 milliseconds
+Epoch: 5, Loss: 1.00147e+16, Time Elapsed: 4632 milliseconds
+Epoch: 6, Loss: 1.14448e+16, Time Elapsed: 4628 milliseconds
+Epoch: 7, Loss: 6.18926e+15, Time Elapsed: 4603 milliseconds
+Epoch: 8, Loss: 5.34442e+15, Time Elapsed: 4617 milliseconds
+Epoch: 9, Loss: 5.62928e+15, Time Elapsed: 4636 milliseconds
+Training time grows exponentially with number of outputs/neurons in a hidden layer.
+This concludes efficiency test.

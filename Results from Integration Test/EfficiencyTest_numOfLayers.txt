@@ -1,0 +1,40 @@
+2.2 Test how # of layers affect training speed.
+The current model has 4 hidden layers, each having 2 neurons, all activated by sigmoid.
+Its training performance:
+Epoch: 0, Loss: 5.81184e+16, Time Elapsed: 1236 milliseconds
+Epoch: 1, Loss: 5.81184e+16, Time Elapsed: 1222 milliseconds
+Epoch: 2, Loss: 5.81184e+16, Time Elapsed: 1241 milliseconds
+Epoch: 3, Loss: 5.81184e+16, Time Elapsed: 1214 milliseconds
+Epoch: 4, Loss: 5.81184e+16, Time Elapsed: 1231 milliseconds
+Epoch: 5, Loss: 5.81184e+16, Time Elapsed: 1314 milliseconds
+Epoch: 6, Loss: 5.81184e+16, Time Elapsed: 1238 milliseconds
+Epoch: 7, Loss: 5.81184e+16, Time Elapsed: 1202 milliseconds
+Epoch: 8, Loss: 5.81184e+16, Time Elapsed: 1215 milliseconds
+Epoch: 9, Loss: 5.81184e+16, Time Elapsed: 1214 milliseconds
+
+
+In contrast, a model with 6 hidden layers, holding all else the same, has the following training performance:
+Epoch: 0, Loss: 5.81184e+16, Time Elapsed: 1672 milliseconds
+Epoch: 1, Loss: 5.81184e+16, Time Elapsed: 1637 milliseconds
+Epoch: 2, Loss: 5.81184e+16, Time Elapsed: 1667 milliseconds
+Epoch: 3, Loss: 5.81184e+16, Time Elapsed: 1641 milliseconds
+Epoch: 4, Loss: 5.81184e+16, Time Elapsed: 1643 milliseconds
+Epoch: 5, Loss: 5.81184e+16, Time Elapsed: 1658 milliseconds
+Epoch: 6, Loss: 5.81184e+16, Time Elapsed: 1679 milliseconds
+Epoch: 7, Loss: 5.81184e+16, Time Elapsed: 1647 milliseconds
+Epoch: 8, Loss: 5.81184e+16, Time Elapsed: 1659 milliseconds
+Epoch: 9, Loss: 5.81184e+16, Time Elapsed: 1649 milliseconds
+
+
+A model with 8 hidden layers, all having 2 neruons has the following training performance:
+Epoch: 0, Loss: 5.81184e+16, Time Elapsed: 2128 milliseconds
+Epoch: 1, Loss: 5.81184e+16, Time Elapsed: 2096 milliseconds
+Epoch: 2, Loss: 5.81184e+16, Time Elapsed: 2076 milliseconds
+Epoch: 3, Loss: 5.81184e+16, Time Elapsed: 2115 milliseconds
+Epoch: 4, Loss: 5.81184e+16, Time Elapsed: 2083 milliseconds
+Epoch: 5, Loss: 5.81184e+16, Time Elapsed: 2108 milliseconds
+Epoch: 6, Loss: 5.81184e+16, Time Elapsed: 2162 milliseconds
+Epoch: 7, Loss: 5.81184e+16, Time Elapsed: 2104 milliseconds
+Epoch: 8, Loss: 5.81184e+16, Time Elapsed: 2076 milliseconds
+Epoch: 9, Loss: 5.81184e+16, Time Elapsed: 2086 milliseconds
+Training time also grows linearly with number of hidden layers.

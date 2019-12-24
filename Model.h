@@ -75,6 +75,8 @@ public:
 	X_train. The returned y_hat has to have the same number of rows as X. */
 	Eigen::VectorXd forwardProp(Eigen::MatrixXd data);
 
+	Eigen::VectorXd predict(Eigen::MatrixXd newData);
+
 	/*Computes the gradient of loss on weights and bias of all hidden layers,
 	and stores them in the associated layers. Utilizes forwardProp and loss.*/
 	void backProp(Eigen::MatrixXd data);
@@ -100,7 +102,7 @@ public:
 	/*Trains the model on data using Gradient Descent.*/
 	void train_gd(Eigen::MatrixXd data_train, int epochs, double lambda = 0.005);
 
-	void train_sgd(Eigen::MatrixXd data_train, int epochs, double lambda = 0.005, int batch_size = 50);
+	void train_sgd(Eigen::MatrixXd data_train, int epochs, double lambda = 0.005, int batch_size = 35);
 
 	/*Calculates the right-most element in the currSample_ChainRuleFactor and
 	caches the output in the field. oFinal is just another name for y_hat on the 

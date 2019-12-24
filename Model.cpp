@@ -7,6 +7,8 @@
 #include <Eigen/Dense>
 #include <cmath>
 #include <ctime>
+#include <chrono>
+
 
 using namespace Eigen;
 using namespace std;
@@ -93,6 +95,11 @@ Eigen::VectorXd Model::forwardProp(Eigen::MatrixXd data)
 	return y_hat;
 }
 
+Eigen::VectorXd Model::predict(Eigen::MatrixXd newData)
+{
+	return forwardProp(newData);
+}
+
 void Model::currSample_updateJacobians()
 {
 	for (HiddenLayer& hl : hiddenLayers) {
@@ -136,22 +143,35 @@ double Model::mseLoss(Eigen::VectorXd y_hat, Eigen::VectorXd y)
 void Model::train_gd(Eigen::MatrixXd data, int epochs, double lambda)
 {
 	for (int i = 0; i < epochs; i++) {
-		time_t startTime;
-		time(&startTime);
+		auto start = std::chrono::high_resolution_clock::now();
 		backProp(data);
 		updateParams(lambda);
 		VectorXd y_hat = forwardProp(data);
 		double loss = mseLoss(y_hat, data.col(0));
-		time_t endTime;
-		time(&endTime);
-		cout << "Epoch: " << i << ", Loss: " << loss << " Seconds Elapsed: " 
-			<< endTime - startTime << endl;
+		auto elapsed = std::chrono::high_resolution_clock::now() - start;
+		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+		cout << "Epoch: " << i << ", Loss: " << loss << ", Time Elapsed: " 
+			<< microseconds/1000 << " milliseconds" << endl;
 	}
 }
 
-void Model::train_sgd(Eigen::MatrixXd data_train, int epochs, double lambda, int batch_size)
+void Model::train_sgd(Eigen::MatrixXd data, int epochs, double lambda, int batch_size)
 {
-
+	int n = data.rows();
+	int maximalStartIndex = n - batch_size;
+	for (int i = 0; i < epochs; i++) {
+		int startIndex = rand() % maximalStartIndex; 
+		MatrixXd data_minibatch = data.block(startIndex, 0, batch_size, data.cols());
+		auto start = std::chrono::high_resolution_clock::now();
+		backProp(data_minibatch);
+		updateParams(lambda);
+		VectorXd y_hat = forwardProp(data);
+		double loss = mseLoss(y_hat, data.col(0));
+		auto elapsed = std::chrono::high_resolution_clock::now() - start;
+		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+		cout << "Epoch: " << i << ", Loss: " << loss << ", Time Elapsed: "
+			<< microseconds/1000 << " milliseconds" << endl;
+	}
 }
 
 

@@ -203,7 +203,7 @@ int main() {
 	//cout << "This concludes testing for a stand-alone HiddenLayer. \n\n" << endl;
 
 
-	cout << "Begin testing Model" << endl;
+	//cout << "Begin testing Model" << endl;
 	/*Test the default constructor of Model.*/
 	//cout << "Testing the default constructor Model." << endl;
 
@@ -365,53 +365,148 @@ int main() {
 	//cout << "BySampleNeblaWeights still work as expected after adding in more samples! \n\n" << endl;
 
 
-	//cout << "Here comes the exciting part. Let's test the dataset wise forwardProp and backProp." << endl;
-
-
-	/*Integrated Test.*/
-	cout << "Begin integrated test on the entire framework." << endl;
-	cout << "\n\nTesting the framework on a linearly generated data set."
-		"Model has the simplest linear regression structure,"
-		" i.e, one hiddenLayer with one neuron, activated through identity. "
-		"\nIn each epoch, gradient descent is performed over one randomly selected mini-batch of size 35."
-		"\nWe check two things: \n1.Loss does converge to 0; \n2.Each epoch doesn't take long." << endl;
+	/*Integration Test.*/
+	cout << "Begin integration test on the entire framework." << endl;
+	/*Correctness Test.*/
+	cout << "\n\n1. Correctness test." << endl;
+	cout << "We verify the framework's correctness through the following fact: "
+		"No matter what structure of the model, as long as the model is linear, "
+		"the training loss should converge to 0 when trained on a linearly generated dataset." << endl;
 	MatrixXd data_linear = readCSV("data_linear.csv");
+	cout << "The first model has the simplest linear regression structure,"
+		" i.e, one hiddenLayer with one neuron, activated through identity. "
+		"\nThe data is linearly generated. It contains 7 features and 35 samples."
+		"\nIn each epoch, gradient descent is performed over the entire dataset."
+		"\nIts training performance is as follows: " << endl;
 	Model m2(data_linear);
 	m2.addHiddenLayer(1, identity);
 	m2.addOutputLayer();
-	//m2.train_gd(data_linear, 500, 0.0015);
-	cout << "Indeed, when applying a linear model to linearly generated data, the loss converges to 0, "
-		"and training each epoch doesn't take long. \n\n" << endl;
+	m2.train_gd(data_linear, 500, 0.0015);
+	cout << "The loss converges to 0. \n\n" << endl;
 	
-	cout << "We verify the framework's correctness through the following fact: "
-		"No matter how many hidden layers we have, as long as the model is linear, "
-		"the training loss should converge to 0 when trained on a linearly generated dataset."
+	cout << 
+		"The second linear model has 1 hidden layer with 2 neurons. The same data is used as above."
+		"\nThe training performance is as follows: "
 		<< endl;
 	Model m3(data_linear);
 	m3.addHiddenLayer(2, identity);
 	m3.addOutputLayer();
-	m3.train_gd(data_linear, 500, 0.0015);
+	m3.train_gd(data_linear, 1000, 0.0005);
+	cout << "Again, we see the loss dropping at a non-decelerating rate. It's proper to infer it will converge to zero."
+		"\nNote we've adjusted the learning rate. \n\n" << endl;
 
-	
+	cout <<
+		"The third linear model has 2 hidden layers, each having 2 neurons."
+		"\nThe training performance is as follows: " << endl;
+	Model m4(data_linear);
+	m4.addHiddenLayer(2, identity);
+	m4.addHiddenLayer(2, identity);
+	m4.addOutputLayer();
+	m4.train_gd(data_linear, 3000, 0.00002);
+	cout << "The loss drops faster initially. Nonetheless,"
+		" it seems to decrease at stable rate after dropping below 1000. This again confirm's linear model's loss convergence to zero. \n\n" << endl;
+	cout << "Comments on correctness: \nthe fact that our framework optimizes linear model correctly shows that the logic"
+		" of gradient descent is correctly implemented, at least for linear models. As our implementaion of"
+		" gradient descent doesn't differentiate between linear or non-linear models (in any model the gradients are calculated numerically using forward perturbance)"
+		" we should expect the same logic to be correct for non-linear models."
+		"\nOf course in practice, the gradients descent might not work well, but that's due to the actual model strucutre"
+		"/parameters, not error in implementation. "
+		"\nRegarding numerical stability: we did some simple tests on the stability of numerical methods in the unit test sections for"
+		" functions invoked in calcJacobians(). The errors are confined to 0.00001, 10 times the"
+		" default perturbance. " << endl;
+	cout << "Regarding convergence: we think the main reason the models from our framework"
+		" often converge slowly is due to the naive paramter initialization -- setting all weights and biases"
+		" to 1 at the beginning. Experimentation shows this is only proper when the actual feature magnitude"
+		" is close to 1. To acheive better performance, we recommend normalizing all inputs before training." << endl;
 
-	//cout << "Let's see if a non-linear model with multiple layers trains fast enough on small sample size." << endl;
-	//Model m3(data_linear);
-	//m3.addHiddenLayer(5, sigmoid);
-	//m3.addHiddenLayer(4, sigmoid);
-	//m3.addHiddenLayer(3, sigmoid);
-	//m3.addHiddenLayer(1, identity);
-	//m3.addOutputLayer();
-	//m3.train_gd(data_linear, 500, 0.003);
-	
-	//cout << "Let's reduce the number of layers but increase the number of neurons in a layer, "
-	//	"and test the training speed." << endl;
-	//Model m4(data_linear);
-	//m4.addHiddenLayer(30, identity);
-	//m4.addOutputLayer();
-	//m4.train_gd(data_linear, 500, 0.0003);
+	/*Efficiency Test*/
+	cout << "\n\n\n2. Efficiency Test." << endl;
+	cout <<	"2.1 Testing how minibatch size affects training speed." << endl;
+	MatrixXd data_linear_large = readCSV("data_linear_large.csv");
+	Model m5(data_linear_large);
+	cout << "\nEffect of minibatch_size on training speed." << endl;
+	cout << "The training data here is linearly generated (see code from DataGeneration.ipynb)."
+		" It contains 3500 samples and each x contains 7 features. " << endl;
+	cout << "We train a simple regression model (1 hiddenlayer with 1 neuron, identity activation)"
+		" on the data, using sgd with batch_sizes = 250, 500, 750, 1000, 1250, 1500, 1750 and 2000. The result is as follows:" << endl;
+	m5.addHiddenLayer(1, identity);
+	m5.addOutputLayer();
+	cout << "\nBatch_size = 250:" << endl;
+	m5.train_sgd(data_linear_large, 10, 0.00000005, 250);
+	cout << "\nBatch_size = 500:" << endl;
+	m5.train_sgd(data_linear_large, 10, 0.00000005, 500);
+	cout << "\nBatch_size = 750:" << endl;
+	m5.train_sgd(data_linear_large, 10, 0.00000005, 750);
+	cout << "\nBatch_size = 1000:" << endl;
+	m5.train_sgd(data_linear_large, 10, 0.00000005, 1000);
+	cout << "\nBatch_size = 1250:" << endl;
+	m5.train_sgd(data_linear_large, 10, 0.00000005, 1250);
+	cout << "\nBatch_size = 1500:" << endl;
+	m5.train_sgd(data_linear_large, 10, 0.00000005, 1500);
+	cout << "\nBatch_size = 1750:" << endl;
+	m5.train_sgd(data_linear_large, 10, 0.00000005, 1750);
+	cout << "\nBatch_size = 2000:" << endl;
+	m5.train_sgd(data_linear_large, 10, 0.00000005, 2000);
+	cout << "It's obvious that the training time grows linearly with mini batch size." << endl;
 
-	//cout << "Training on data_train." << endl;
+	cout << "\n2.2 Test how # of layers affect training speed." << endl;
+	Model m6(data_linear_large);
+	m6.addHiddenLayer(2, sigmoid);
+	m6.addHiddenLayer(2, sigmoid);
+	m6.addHiddenLayer(2, sigmoid);
+	m6.addHiddenLayer(2, sigmoid);
+	m6.addOutputLayer();
+	cout << "The current model has 4 hidden layers, each having 2 neurons, all activated by sigmoid." << endl;
+	cout << "Its training performance: " << endl;
+	m6.train_sgd(data_linear_large, 10, 0.00000005, 250);
+	cout << "\n\nIn contrast, a model with 6 hidden layers, holding all else the same, has the following training "
+		"performance: " << endl;
+	Model m7(data_linear_large);
+	m7.addHiddenLayer(2, sigmoid);
+	m7.addHiddenLayer(2, sigmoid);
+	m7.addHiddenLayer(2, sigmoid);
+	m7.addHiddenLayer(2, sigmoid);
+	m7.addHiddenLayer(2, sigmoid);
+	m7.addHiddenLayer(2, sigmoid);
+	m7.addOutputLayer();
+	m7.train_sgd(data_linear_large, 10, 0.00000005, 250);
+	cout << "\n\nA model with 8 hidden layers, all having 2 neruons has the following training performance:" << endl;
+	Model m8(data_linear_large);
+	m8.addHiddenLayer(2, sigmoid);
+	m8.addHiddenLayer(2, sigmoid);
+	m8.addHiddenLayer(2, sigmoid);
+	m8.addHiddenLayer(2, sigmoid);
+	m8.addHiddenLayer(2, sigmoid);
+	m8.addHiddenLayer(2, sigmoid);
+	m8.addHiddenLayer(2, sigmoid);
+	m8.addHiddenLayer(2, sigmoid);
+	m8.addOutputLayer();
+	m8.train_sgd(data_linear_large, 10, 0.00000005, 250);
+	cout << "Training time also grows linearly with number of hidden layers. \n" << endl;
 
+	cout << "\n2.3 Test how number of neurons affect training speed." << endl;
+	Model m9(data_linear_large);
+	cout << "\nA model with 1 hidden layer that has 1 neuron has the following training performance: " << endl;
+	m9.addHiddenLayer(1, identity);
+	m9.addOutputLayer();
+	m9.train_sgd(data_linear_large, 10, 0.00000005, 250);
+	cout << "\nA model with 1 hidden layer that has 3 neurons has the following training perforamnce: " << endl;
+	Model m10(data_linear_large);
+	m10.addHiddenLayer(3, identity);
+	m10.addOutputLayer();
+	m10.train_sgd(data_linear_large, 10, 0.00000005, 250);
+	cout << "\nA model with 1 hidden layer that has 5 neurons has the following training perforamnce: " << endl;
+	Model m11(data_linear_large);
+	m11.addHiddenLayer(5, identity);
+	m11.addOutputLayer();
+	m11.train_sgd(data_linear_large, 10, 0.00000005, 250);
+	cout << "\nA model with 1 hidden layer that has 7 neurons has the following training perforamnce: " << endl;
+	Model m12(data_linear_large);
+	m12.addHiddenLayer(7, identity);
+	m12.addOutputLayer();
+	m12.train_sgd(data_linear_large, 10, 0.00000005, 250);
+	cout << "Training time grows exponentially with number of outputs/neurons in a hidden layer." << endl;
+	cout << "This concludes efficiency test." << endl;
 
 	///*Testing utitlities.*/
 	//cout << "Testing the utilities funcitons. Note they don't belong to any classes." << endl;
