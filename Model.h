@@ -100,6 +100,8 @@ public:
 	/*Trains the model on data using Gradient Descent.*/
 	void train_gd(Eigen::MatrixXd data_train, int epochs, double lambda = 0.005);
 
+	void train_sgd(Eigen::MatrixXd data_train, int epochs, double lambda = 0.005);
+
 	/*Calculates the right-most element in the currSample_ChainRuleFactor and
 	caches the output in the field. oFinal is just another name for y_hat on the 
 	current sample.*/

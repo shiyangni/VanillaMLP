@@ -366,18 +366,24 @@ int main() {
 
 
 	//cout << "Here comes the exciting part. Let's test the dataset wise forwardProp and backProp." << endl;
-	//Model dataModel3(data_train);
-	//dataModel3.addHiddenLayer(2);
-	//dataModel3.addOutputLayer();
-	//cout << "The y_hat is: " << dataModel3.forwardProp(data_train) << endl;
-	//dataModel3.backProp(data_train);
+
 
 	/*Integrated Test.*/
-    MatrixXd data_easy = readCSV("data_easy.csv");
-	Model m(data_easy.row(0));
-	m.addHiddenLayer(1, identity);
-	m.addOutputLayer();
-	m.train_gd(data_easy.row(1), 10, 0.001);
+ //   cout << "Training on data_easy." << endl;
+ //   MatrixXd data_easy = readCSV("data_easy.csv");
+	//Model m(data_easy);
+	//m.addHiddenLayer(1, identity);
+	//m.train_gd(data_easy, 1000, 0.01);
+
+	cout << "Training on a linear data." << endl;
+	MatrixXd data_linear = readCSV("data_linear.csv");
+	Model m2(data_linear);
+	m2.addHiddenLayer(1, identity);
+	m2.addOutputLayer();
+	m2.train_gd(data_linear, 5000, 0.0015);
+	
+	
+	//cout << "Training on data_train." << endl;
 
 
 	///*Testing utitlities.*/

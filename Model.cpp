@@ -149,6 +149,11 @@ void Model::train_gd(Eigen::MatrixXd data, int epochs, double lambda)
 	}
 }
 
+void Model::train_sgd(Eigen::MatrixXd data_train, int epochs, double lambda)
+{
+
+}
+
 
 double Model::calcCurrSample_DlossDoFinal(double y_true, double perturbance)
 {
@@ -177,11 +182,13 @@ void Model::currSample_updateChainRuleFactors()
 	MatrixXd runningChainRuleFactor 
 		= getOutputLayer().getCurrSample_DoDinput() * getCurrSample_DlossDoFinal();
 	getKthHiddenLayer(k).setCurrSample_ChainRuleFactor(runningChainRuleFactor);
+	//cout << "TESTING: The " << k << "-th hidden layer now has runningChainRuleFactor: \n" << runningChainRuleFactor  << endl;
 	while (k > 0) {
 		runningChainRuleFactor
 			= getKthHiddenLayer(k).getCurrSample_DoDinput() * runningChainRuleFactor;
 		k--;
 		getKthHiddenLayer(k).setCurrSample_ChainRuleFactor(runningChainRuleFactor);
+		//cout << "TESTING: The " << k << "-th hidden layer now has runningChainRuleFactor: \n" << runningChainRuleFactor << endl;
 	}
 }
 

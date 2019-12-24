@@ -1,6 +1,8 @@
 #include <Eigen/Dense>
+#include <iostream>
 #include "OutputLayer.h"
 
+using namespace std;
 using namespace Eigen;
 
 OutputLayer::OutputLayer()
@@ -33,6 +35,7 @@ Eigen::MatrixXd OutputLayer::calcDoDinput(double perturbance)
 		result(i, 0) = (perturbedOutput(0) - getOutput()(0)) / perturbance;
 	}
 	currSample_DoDinput = result;
+	//cout << "TESTING: For the output layer, the currSample_DoDinput is \n" << result << endl;
 	return result;
 }
 

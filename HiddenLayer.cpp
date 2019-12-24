@@ -1,4 +1,4 @@
-#include <Eigen/Dense>
+﻿#include <Eigen/Dense>
 #include "HiddenLayer.h"
 #include "Layer.h"
 #include "Utilities.h"
@@ -56,6 +56,7 @@ Eigen::MatrixXd HiddenLayer::calcCurrSample_DlossDWeights()
 	for (int i = 0; i < getNumOutputs(); i++) {
 		result.col(i) = currSample_DoDweights.at(i) * currSample_chainRuleFactor;
 	}
+	//cout << "TESTING: The calcualted DlossDweights is : \n" << result << endl;
 	return result;
 }
 
@@ -63,6 +64,7 @@ void HiddenLayer::addCurrSample_neblaWeights()
 {
 	MatrixXd currSample_neblaWeights = calcCurrSample_DlossDWeights().transpose();
 	neblaWeights_bySample.push_back(currSample_neblaWeights);
+	//cout << "TESTING: The pushed in currSample_neblaWeights is: \n" << currSample_neblaWeights << endl;
 	currSample_DoDweights.clear();
 }
 
@@ -100,6 +102,7 @@ Eigen::MatrixXd HiddenLayer::calcDoDinput(double perturbance)
 		}
 	}
 	currSample_DoDinput = result;
+	//cout << "TESTING: The currSample_DoDinput is :\n" << result << endl;
 	return result;
 }
 
@@ -188,6 +191,7 @@ void HiddenLayer::calcCurrSample_DoDbias()
 	for (int j = 0; j < numOutputs; j++) {
 		MatrixXd DoDbiasJ = calcDoDbiasJ(j);
 		currSample_DoDbias.push_back(DoDbiasJ);
+		//cout << "TESTINGL: The " << j << "th currSampleDoDbiasJ is：\n" << DoDbiasJ << endl;
 	}
 }
 
@@ -207,6 +211,7 @@ Eigen::RowVectorXd HiddenLayer::calcCurrSample_DlossDbias()
 	for (int i = 0; i < getNumOutputs(); i++) {
 		result.col(i) = currSample_DoDbias.at(i) * currSample_chainRuleFactor;
 	}
+	//cout << "TESTING: The calcualted DlossDbias is: \n" << result << endl;
 	return result;
 }
 
@@ -214,6 +219,7 @@ void HiddenLayer::addCurrSample_neblaBias()
 {
 	VectorXd currSample_neblaBias = calcCurrSample_DlossDbias().transpose();
 	neblaBias_bySample.push_back(currSample_neblaBias);
+	//cout << "TESTING: The pushed in currSample_neblaWeights is: \n" << currSample_neblaBias << endl;
 	currSample_DoDbias.clear();
 }
 
@@ -237,27 +243,31 @@ void HiddenLayer::currSample_calcJacobians()
 
 Eigen::MatrixXd HiddenLayer::calcNeblaWeights()
 {
-	MatrixXd result(getNumOutputs(), getNumInputs());
+	MatrixXd result = MatrixXd::Zero(getNumOutputs(), getNumInputs());
 	int count = 0;
 	for (MatrixXd a : neblaWeights_bySample) {
 		result += a;
 		count += 1;
 	}
 	neblaWeights_bySample.clear();
+	//cout << "TESTING: For this data, the currSample_neblaWeights sum is: \n" << result << endl;
 	neblaWeights = result / count;
+	//cout << "TESTING: For this data, the calculated nebla weights is :\n" << neblaWeights << endl;
 	return neblaWeights;
 }
 
 Eigen::VectorXd HiddenLayer::calcNeblaBias()
 {
-	VectorXd result(getNumOutputs());
+	VectorXd result = VectorXd::Zero(getNumOutputs());
 	int count = 0;
 	for (VectorXd a : neblaBias_bySample) {
 		result += a;
 		count += 1;
 	}
 	neblaBias_bySample.clear();
+	//cout << "TESTING: For this data, the currSample_neblaBias sum is: \n" << result << endl;
 	neblaBias = result / count;
+	//cout << "TESTING: For this data, the calculated nebla bias is :\n" << neblaBias << endl;
 	return neblaBias;
 }
 
