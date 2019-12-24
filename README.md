@@ -27,7 +27,7 @@ Clone the source file repo through
 git clone https://github.com/shiyangni/VanillaMLP.git
 ```
 
-Once complete, open an C++ IDE of your choice , start an empty project, and add all `.h` and `.cpp` files according to your project structure. In Visual Studio C++, that simply involves navigating to the `Solution Explorer` bar (typically appearing on the right of the IDE), right clicking on `Header` and `Source` folder, and adding all relevant files through  `Add Existing Item`.  
+Once complete, open an C++ IDE of your choice , start an empty project, and add all `.h` and `.cpp` files  to your project structure. In Visual Studio C++, that simply involves navigating to the `Solution Explorer` bar (typically appearing on the right of the IDE), right clicking on `Header` and `Source` folder, and adding all relevant files through  `Add Existing Item`.  
 
 Note no changes to the file structure is necessary. we also included a `DataGeneration.ipynb` that contains code for producing simulated data. To ensure the produced data is accessible through `main.cpp` we recommend preserving the file structure _as is_.
 
