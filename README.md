@@ -4,6 +4,12 @@ In `VanillaMLP` we created a framework that allows users to create and train a b
 
 This is a practice project to gain an elementary understanding of how a Neural Network is implemented. Our implementation is mostly naïve, and very likely has serious flaws. This mini report aims to clearly describe the key components in our design. By doing so we hope to expose our current level of understanding (or the lack thereof), and invite _directed_ critical feedback. Your kindness in helping us further  learning would be highly appreciated!
 
+This mini report consists of three parts: 
+
+1. A _User Manual_ on how to use the framework.
+2. Results from the integration test on _correctness of the the optimization scheme_, and _the efficiency of training_.
+3. _Key Implementations_.
+
 ## How to run `VanillaMLP`
 
 ### Prerequisites
@@ -423,5 +429,123 @@ Epoch: 9, Loss: 5.62928e+15, Time Elapsed: 4636 milliseconds
 
 __Training time grows exponentially with number of outputs/neurons in a hidden layer__.
 
-## Implementation Highlight
+## Key Implementations 
 
+In this section we lay out what happens under the hood when `m.train_sgd(...)` is called. To simplify expressions, we look at `m.train_gd(...)` instead.
+
+#### Master Function for Training
+
+A pseudo-code for the training function is as follows:
+
+```c++
+for (i in epochs) {
+    backProp(data);
+    updateParams(lambda);
+    y_hat = forwardProp(data);
+    y_true = data.col(0);
+    report_loss_and_time();
+}
+```
+
+`backProp(data)` calculates the gradient of loss on the data w.r.t all weights and biases in all layers. This is where most heavy lifting happens.
+
+`updateParams(lambda) `  simply performs one step of gradient descent in all layers. 
+
+`forwardProp(data)` calculates the `y_hat` by passing each row of `X` through the model. 
+
+The actual code involves a few nuances used in reporting time:
+
+```c++
+void Model::train_gd(Eigen::MatrixXd data, int epochs, double lambda)
+{
+	for (int i = 0; i < epochs; i++) {
+		auto start = std::chrono::high_resolution_clock::now();
+		backProp(data);
+		updateParams(lambda);
+		VectorXd y_hat = forwardProp(data);
+		double loss = mseLoss(y_hat, data.col(0));
+		auto elapsed = std::chrono::high_resolution_clock::now() - start;
+		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+		cout << "Epoch: " << i << ", Loss: " << loss << ", Time Elapsed: " 
+			<< microseconds/1000 << " milliseconds" << endl;
+	}
+}
+```
+
+
+
+We will explain _how intermediate products are cached_ throughout back propagation.
+
+#### How Back Propagation is Implemented
+
+The code for back propagating over a data-set is as follows
+
+```c++
+void Model::backProp(Eigen::MatrixXd data)
+{
+	int n = data.rows();
+	int q = data.cols() - 1;
+	VectorXd y = data.col(0);
+	MatrixXd X = data.block(0, 1, n, q);
+	for (int i = 0; i < n; i++) {
+		VectorXd curr_x = X.row(i).transpose(); 
+		double curr_y = y(i);
+		currSample_forwardProp(curr_x); // Feed each sample forward through the model
+		currSample_backProp(curr_y); // Calculate the gradient of the loss on current sample with w.r.t. to all parameters.
+	}
+	calcNeblas();
+}
+```
+
+The purpose of back propagation is to calculate the gradient of loss over the the entire dataset w.r.t to all parameters. As the loss over the entire dataset is nothing but the average of per sample loss, the data-set wise gradient is nothing but the average of per sample gradient. We define function `currSample_forwardProp` and `currSample_backProp` to compute and cache the per-sample gradients.
+
+#### How Caching is Used in Computing Per Sample Gradient
+
+Denote the weights in the kth `HiddenLayer` W_k, a matrix. Further assume the model has L `HiddenLayers`.
+
+Naively to calculate dloss/dW_k, we can use the simple forward difference method -- for each element in W_k, add a small perturbance, and recalculate the loss with perturbed weights, and get the rise over run. But this method is inefficient: to calculate the perturbed loss over the kth layer, L - k + 1 layers have to re-feed forward the inputs. Calculating the perturbed loss over all layers would involve BigTheta(L^2) number of re-feed forwards.
+
+A smarter way is to break dloss/dW_{k}_ into intermediate products using chain rule:
+
+dloss/dW_{k}_  = do_{k}_/dW_{k}_ * do_{k+1}_/do_{k}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_)
+
+where o_{k}_ represents the output of the kth `HiddenLayer`. Notice the calculation of any do_{k}_/do_{k-1}_ can be done once the kth layer has read in inputs. It doesn't rely on knowing the outputs of later layers.
+
+After the current sample has been read in, we do the following:
+
+1. First, for all layers, calculate do_{k}_/dW_{k}_ using forward difference method. This involves feeding forward the perturbed weights once for each layer, thus there are L feed forward actions.
+
+2. Second, for starting from the last hidden layer, calculate and cache (do_{k+1}_/do_{k}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_).  Notice we don't have to recalculate the whole product for each layer -- simply keep a running product, do_{k+2}_/do_{k+1}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_, and multiply that product with the current do_{k+1}_/do_{k}_. 
+
+   We call this running sum `currSample_ChainRuleFactor`. Updating this chain rule factor simply requires each layer to calculate once the do_{k+1}_/do_{k}_ through forward difference. In total, this involves L feed forward actions with perturbed weights.
+
+Thus in total, using caching, we're able to reducing the number of forward difference calculation from BigTheta(L^2) to BigTheta(L).
+
+The code is as follows:
+
+```c++
+void Model::currSample_backProp(double y)
+{
+	currSample_updateJacobians(); // calculate and cache DoDweights and DoDbias.
+	currSample_updateChainRuleFactors(y); // update the running product.
+	currSample_addBySampleNeblas(); // To be explained later.
+}
+```
+
+#### An Awkward Book-keeping Issue
+
+What we ignored in the above formulation is the dimension of each term in 
+
+dloss/dW_{k}_  = do_{k}_/dW_{k}_ * do_{k+1}_/do_{k}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_)
+
+Let's say the k-th `HiddenLayer` has n_{k}_ outputs and p_{k}_ inputs. As the last hidden layer's output is this hidden layer's input, p_{k}_ = n_{k-1}_. 
+
+Then o_{k}_ is a vector of n_{k}_ dimensions, and o_{k-1}_ is a vector of n_{k-1}_ dimensions. Using the denominator layout, where by the number of rows of the denominator determines the number of rows in the Jacobian, do_{k+1}_/do_{k}_ is a n_{k}_ x n_{k+1}_ matrix. A brief calculation shows that the expression starting from the second term, i.e,  do_{k+1}_/do_{k}_ * ... * do_{L}_/do_{L-1}_ * (dOutput/do_{L}_ * dloss/do_{L}_),  has matching dimension between each successive term.
+
+But the first time is a vector's derivative w.r.t to a matrix, which by analogy should be a 3-order tensor. We are not familiar with tensor multiplications, so we get around that problem by __calculating the derivatives row by row, and stack them back into a matrix__ after multiplying with the running product.
+
+Thus in the `currSample_updateJacobians()` step, what actually happens is do_{k}_/d(weight of jth neuron) is calculated neuron by neuron, and cached into a vector. In `currSample_addBySampleNeblas()`, each cached element is multiplied with the running product on the right, and the resulting vectors are stacked back into a matrix.
+
+Is it overcomplicating backprop? 
+
+ 
