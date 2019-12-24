@@ -149,7 +149,7 @@ void Model::train_gd(Eigen::MatrixXd data, int epochs, double lambda)
 	}
 }
 
-void Model::train_sgd(Eigen::MatrixXd data_train, int epochs, double lambda)
+void Model::train_sgd(Eigen::MatrixXd data_train, int epochs, double lambda, int batch_size)
 {
 
 }

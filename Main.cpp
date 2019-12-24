@@ -1,4 +1,4 @@
-#include <cstdlib>
+﻿#include <cstdlib>
 #include <iostream>
 #include <cmath>
 #include <Eigen/Dense>
@@ -369,20 +369,47 @@ int main() {
 
 
 	/*Integrated Test.*/
- //   cout << "Training on data_easy." << endl;
- //   MatrixXd data_easy = readCSV("data_easy.csv");
-	//Model m(data_easy);
-	//m.addHiddenLayer(1, identity);
-	//m.train_gd(data_easy, 1000, 0.01);
-
-	cout << "Training on a linear data." << endl;
+	cout << "Begin integrated test on the entire framework." << endl;
+	cout << "\n\nTesting the framework on a linearly generated data set."
+		"Model has the simplest linear regression structure,"
+		" i.e, one hiddenLayer with one neuron, activated through identity. "
+		"\nIn each epoch, gradient descent is performed over one randomly selected mini-batch of size 35."
+		"\nWe check two things: \n1.Loss does converge to 0; \n2.Each epoch doesn't take long." << endl;
 	MatrixXd data_linear = readCSV("data_linear.csv");
 	Model m2(data_linear);
 	m2.addHiddenLayer(1, identity);
 	m2.addOutputLayer();
-	m2.train_gd(data_linear, 5000, 0.0015);
+	//m2.train_gd(data_linear, 500, 0.0015);
+	cout << "Indeed, when applying a linear model to linearly generated data, the loss converges to 0, "
+		"and training each epoch doesn't take long. \n\n" << endl;
 	
+	cout << "We verify the framework's correctness through the following fact: "
+		"No matter how many hidden layers we have, as long as the model is linear, "
+		"the training loss should converge to 0 when trained on a linearly generated dataset."
+		<< endl;
+	Model m3(data_linear);
+	m3.addHiddenLayer(2, identity);
+	m3.addOutputLayer();
+	m3.train_gd(data_linear, 500, 0.0015);
+
 	
+
+	//cout << "Let's see if a non-linear model with multiple layers trains fast enough on small sample size." << endl;
+	//Model m3(data_linear);
+	//m3.addHiddenLayer(5, sigmoid);
+	//m3.addHiddenLayer(4, sigmoid);
+	//m3.addHiddenLayer(3, sigmoid);
+	//m3.addHiddenLayer(1, identity);
+	//m3.addOutputLayer();
+	//m3.train_gd(data_linear, 500, 0.003);
+	
+	//cout << "Let's reduce the number of layers but increase the number of neurons in a layer, "
+	//	"and test the training speed." << endl;
+	//Model m4(data_linear);
+	//m4.addHiddenLayer(30, identity);
+	//m4.addOutputLayer();
+	//m4.train_gd(data_linear, 500, 0.0003);
+
 	//cout << "Training on data_train." << endl;
 
 

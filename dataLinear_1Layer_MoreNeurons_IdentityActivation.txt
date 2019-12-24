@@ -1,0 +1,18 @@
+Model m4(data_linear);
+m4.addHiddenLayer(30, identity);
+m4.addOutputLayer();
+m4.train_gd(data_linear, 500, 0.0003);
+
+Welcome to testing for Vanilla MLP!
+
+
+Begin testing Model
+Let's reduce the number of layers but increase the number of neurons in a layer, and test the training speed.
+Epoch: 0, Loss: 5.26538e+17 Seconds Elapsed: 26
+Epoch: 1, Loss: 4.41936e+21 Seconds Elapsed: 23
+Epoch: 2, Loss: 3.70974e+25 Seconds Elapsed: 24
+Epoch: 3, Loss: 3.11427e+29 Seconds Elapsed: 24
+Epoch: 4, Loss: 2.61591e+33 Seconds Elapsed: 25
+
+(Incomplete. But we can see time cost increases very fast with number of neurons in the 
+hidden layer)
