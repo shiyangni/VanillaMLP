@@ -540,9 +540,9 @@ dloss/dW{k}  = do{k}/dW{k} * do{k+1}/do{k} * ... * do{L}/do{L-1} * (dOutput/do{L
 
 Let's say the k-th `HiddenLayer` has n{k} outputs and p{k} inputs. As the last hidden layer's output is this hidden layer's input, p{k} = n{k-1}. 
 
-Then o{k} is a vector of n{k} dimensions, and o{k-1} is a vector of n{k-1} dimensions. Using the denominator layout, where by the number of rows of the denominator determines the number of rows in the Jacobian, do{k+1}/do{k} is a n{k} x n{k+1} matrix. A brief calculation shows that the expression starting from the second term, i.e,  do{k+1}/do{k} * ... * do{L}/do{L-1} * (dOutput/do{L} * dloss/do{L}),  has matching dimension between each successive term.
+Then o{k} is a vector of n{k} dimensions, and o{k-1} is a vector of n{k-1} dimensions. Using the denominator layout, whereby the number of rows of the denominator determines the number of rows in the Jacobian, do{k+1}/do{k} is a n{k} x n{k+1} matrix. A brief calculation shows that the expression starting from the second term, i.e,  do{k+1}/do{k} * ... * do{L}/do{L-1} * (dOutput/do{L} * dloss/do{L}),  has matching dimension between each successive term.
 
-But the first time is a vector's derivative w.r.t to a matrix, which by analogy should be a 3-order tensor. We are not familiar with tensor multiplications, so we get around that problem by __calculating the derivatives row by row, and stack them back into a matrix__ after multiplying with the running product.
+But the first term is a vector's derivative w.r.t to a matrix, which by analogy should be a 3-order tensor. We are not familiar with tensor multiplications, so we get around that problem by __calculating the derivatives row by row, and stack them back into a matrix__ after multiplying with the running product.
 
 Thus in the `currSample_updateJacobians()` step, what actually happens is do{k}/d(weight of jth neuron) is calculated neuron by neuron, and cached into a vector. In `currSample_addBySampleNeblas()`, each cached element is multiplied with the running product on the right, and the resulting vectors are stacked back into a matrix.
 
